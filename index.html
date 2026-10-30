@@ -1,0 +1,963 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Sóng Chèo</title>
+<meta name="description" content="Sóng Chèo: dự án nghiên cứu khoa học kỹ thuật ứng dụng công nghệ số để lưu giữ và lan tỏa nghệ thuật Chèo đến thế hệ trẻ.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;0,700;1,500;1,600&family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap">
+<style>
+/* Sóng Chèo. Một file, bốn "trạm" điều hướng bằng hash (#/tram-1 ... #/tram-4).
+   Nền đỏ đô sẫm cho các băng tiêu đề, giấy dó ngà cho phần đọc. Vàng đồng chỉ dùng
+   cho đường kẻ, số trạm và nút chính. Quạt chèo vẽ bằng SVG là hình ảnh trung tâm. */
+:root{
+  --son:#5B0E1C; --son-2:#7A1727; --son-deep:#2B070E; --son-ink:#3B0A14;
+  --vang:#D5A449; --vang-2:#B7862F; --vang-nhat:#F0DCA8;
+  --giay:#F6EFE1; --giay-2:#EFE4CF; --giay-line:#DCCCAA;
+  --muc:#2A1C16; --muc-nhat:#6B5A4E;
+  --nga:#F8EEDC;
+  --display:"Cormorant Garamond",Georgia,"Times New Roman",serif;
+  --body:"Be Vietnam Pro",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --wrap:1140px; --r:14px; --ease:cubic-bezier(.22,1,.36,1);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;font-family:var(--body);color:var(--muc);background:var(--giay);line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:clip}
+img{max-width:100%;display:block}
+a{color:inherit;text-decoration:none}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
+input,textarea,select{font:inherit;color:inherit}
+h1,h2,h3,h4{margin:0;font-family:var(--display);font-weight:600;line-height:1.1;letter-spacing:.005em}
+p{margin:0}
+ul,ol{margin:0;padding:0;list-style:none}
+.wrap{width:100%;max-width:var(--wrap);margin-inline:auto;padding-left:max(18px,env(safe-area-inset-left));padding-right:max(18px,env(safe-area-inset-right))}
+:focus-visible{outline:2px solid var(--vang);outline-offset:3px;border-radius:4px}
+.ico{width:18px;height:18px;flex:none;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* Nút */
+.btn{display:inline-flex;align-items:center;gap:10px;padding:12px 22px;border-radius:999px;font-weight:600;font-size:15px;line-height:1;white-space:nowrap;transition:transform .4s var(--ease),background .25s,color .25s,border-color .25s}
+.btn:active{transform:scale(.97)}
+.btn-vang{background:var(--vang);color:var(--son-deep)}
+.btn-vang:hover{background:var(--vang-nhat)}
+.btn-son{background:var(--son);color:var(--nga)}
+.btn-son:hover{background:var(--son-2)}
+.btn-line{border:1.5px solid rgba(213,164,73,.6);color:var(--vang-nhat)}
+.btn-line:hover{border-color:var(--vang);background:rgba(213,164,73,.1)}
+.btn-line.dark{border-color:var(--son);color:var(--son)}
+.btn-line.dark:hover{background:rgba(91,14,28,.06)}
+
+/* Header */
+.top{position:sticky;top:0;z-index:40;background:var(--son-deep);color:var(--nga);border-bottom:1px solid rgba(213,164,73,.35)}
+.top .wrap{display:flex;align-items:center;gap:22px;min-height:66px}
+.brand{display:flex;align-items:center;gap:12px;flex:none}
+.brand svg{width:38px;height:38px}
+.brand b{font-family:var(--display);font-weight:700;font-size:24px;letter-spacing:.06em;color:var(--vang);line-height:1}
+.brand small{display:block;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:rgba(248,238,220,.7);margin-top:3px}
+.nav{display:flex;gap:4px;margin-left:auto}
+.nav a{display:flex;flex-direction:column;padding:8px 12px;border-radius:8px;font-size:13.5px;line-height:1.25;color:rgba(248,238,220,.85);transition:background .2s,color .2s}
+.nav a span{font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--vang);opacity:.85}
+.nav a:hover{background:rgba(255,255,255,.06);color:#fff}
+.nav a[aria-current="page"]{background:rgba(213,164,73,.14);color:#fff}
+.top .btn{flex:none}
+.burger{display:none;margin-left:auto;width:42px;height:42px;border-radius:10px;border:1px solid rgba(213,164,73,.4);align-items:center;justify-content:center}
+.burger .ico{width:22px;height:22px}
+@media (max-width:980px){
+  .nav{display:none;position:absolute;left:0;right:0;top:66px;background:var(--son-deep);flex-direction:column;padding:10px 14px 16px;border-bottom:1px solid rgba(213,164,73,.35);gap:2px}
+  .nav.open{display:flex}
+  .nav a{flex-direction:row;gap:10px;align-items:baseline;padding:12px 10px;font-size:15px}
+  .top .btn-vang{display:none}
+  .burger{display:inline-flex}
+}
+
+/* Trang (page) */
+.page{display:none}
+.page.active{display:block;animation:pageIn .5s var(--ease)}
+@keyframes pageIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+/* Hero trang chủ */
+.hero{background:radial-gradient(1200px 600px at 85% 40%,#7A1727 0%,var(--son) 35%,var(--son-deep) 100%);color:var(--nga);position:relative;overflow:hidden}
+.hero::before{content:"";position:absolute;inset:0;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 48 48'><path d='M24 4c2 8 8 14 16 16-8 2-14 8-16 16-2-8-8-14-16-16 8-2 14-8 16-16z' fill='none' stroke='%23D5A449' stroke-opacity='.10'/></svg>");pointer-events:none}
+.hero .wrap{position:relative;display:grid;grid-template-columns:1.1fr .9fr;gap:40px;align-items:center;padding-top:72px;padding-bottom:72px;min-height:min(680px,calc(100vh - 66px - 56px))}
+.tag{display:inline-flex;align-items:center;gap:8px;padding:6px 14px;border:1px solid rgba(213,164,73,.55);border-radius:999px;font-size:12.5px;color:var(--vang-nhat);letter-spacing:.02em}
+.tag::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--vang)}
+.hero h1{font-size:clamp(64px,10vw,124px);font-weight:700;color:var(--vang);letter-spacing:.04em;margin:22px 0 10px;line-height:.95;text-transform:uppercase}
+.hero .quote{font-family:var(--display);font-style:italic;font-size:clamp(20px,2.6vw,28px);color:var(--nga);max-width:30ch;line-height:1.3}
+.hero .lead{margin-top:20px;max-width:56ch;font-size:16px;color:rgba(248,238,220,.82)}
+.hero .acts{display:flex;gap:12px;flex-wrap:wrap;margin-top:30px}
+.fan-wrap{position:relative;aspect-ratio:1;max-width:520px;margin-inline:auto;width:100%}
+.fan-ring{position:absolute;inset:0;border-radius:50%;border:1.5px solid rgba(213,164,73,.55)}
+.fan-ring::after{content:"";position:absolute;inset:14px;border-radius:50%;border:1px dashed rgba(213,164,73,.3)}
+.fan{position:absolute;inset:9%;width:82%;height:82%}
+.fan .leaf{transform-origin:100px 170px;transition:transform 1.1s var(--ease)}
+.fan.closed .leaf{transform:rotate(var(--close))}
+.hero-foot{position:relative;border-top:1px solid rgba(213,164,73,.25);background:rgba(43,7,14,.45)}
+.hero-foot .wrap{display:flex;gap:28px;padding-top:14px;padding-bottom:14px;min-height:0;font-size:13px;color:rgba(248,238,220,.75);flex-wrap:wrap}
+.hero-foot b{color:var(--vang-nhat);font-weight:600}
+@media (max-width:860px){
+  .hero .wrap{grid-template-columns:1fr;padding-top:40px!important;padding-bottom:48px;min-height:0}
+  .fan-wrap{max-width:320px;order:-1}
+}
+
+/* Băng tiêu đề trạm */
+.band{background:linear-gradient(180deg,var(--son) 0%,var(--son-deep) 100%);color:var(--nga);border-bottom:1px solid rgba(213,164,73,.3)}
+.band .wrap{padding-top:56px;padding-bottom:48px;display:grid;grid-template-columns:auto 1fr;gap:28px;align-items:end}
+.band .num{font-family:var(--display);font-size:clamp(84px,12vw,140px);line-height:.8;color:var(--vang);font-weight:700}
+.band .num small{display:block;font-family:var(--body);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--vang-nhat);opacity:.8;margin-bottom:12px;font-weight:500}
+.band h1{font-size:clamp(34px,5vw,56px);color:#fff}
+.band p{margin-top:10px;max-width:60ch;color:rgba(248,238,220,.8)}
+@media (max-width:640px){.band .wrap{grid-template-columns:1fr;gap:10px}}
+
+/* Khối nội dung */
+.sec{padding-block:56px}
+.sec + .sec{padding-top:0}
+.sec h2{font-size:clamp(28px,3.6vw,40px);color:var(--son);margin-bottom:8px}
+.sec .sub{color:var(--muc-nhat);max-width:62ch;margin-bottom:28px}
+.rule{height:1px;background:linear-gradient(90deg,var(--vang),transparent);margin:8px 0 26px;max-width:220px}
+.prose{max-width:68ch;font-size:16.5px}
+.prose p + p{margin-top:14px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:32px;align-items:start}
+@media (max-width:820px){.two{grid-template-columns:1fr}}
+
+/* Trạm trên trang chủ: đường ray 4 trạm */
+.rail{padding-block:64px 24px}
+.rail h2{color:var(--son);font-size:clamp(30px,4vw,44px)}
+.stops{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-top:34px;position:relative}
+.stops::before{content:"";position:absolute;left:34px;right:34px;top:30px;height:2px;background:repeating-linear-gradient(90deg,var(--vang) 0 10px,transparent 10px 18px);z-index:0}
+.stop{position:relative;z-index:1;background:var(--nga);border:1px solid var(--giay-line);border-radius:var(--r);padding:0 20px 22px;transition:transform .4s var(--ease),box-shadow .4s var(--ease);display:block}
+.stop:hover{transform:translateY(-4px);box-shadow:0 18px 40px -22px rgba(91,14,28,.5)}
+.stop .dot{width:60px;height:60px;border-radius:50%;background:var(--son);color:var(--vang);font-family:var(--display);font-weight:700;font-size:30px;display:grid;place-items:center;margin-top:0;border:3px solid var(--giay);box-shadow:0 0 0 1.5px var(--vang)}
+.stop h3{font-size:24px;margin-top:14px;color:var(--son)}
+.stop h3 span{display:block;font-family:var(--body);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--vang-2);margin-bottom:6px;font-weight:600}
+.stop p{font-size:14.5px;color:var(--muc-nhat);margin-top:8px}
+.stop .go{display:inline-flex;align-items:center;gap:6px;margin-top:14px;font-size:13.5px;font-weight:600;color:var(--son)}
+@media (max-width:900px){.stops{grid-template-columns:1fr 1fr}.stops::before{display:none}}
+@media (max-width:520px){.stops{grid-template-columns:1fr}}
+
+/* Con số & cách dùng */
+.facts{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+.fact{border-top:2px solid var(--vang);padding-top:16px}
+.fact b{display:block;font-family:var(--display);font-size:44px;line-height:1;color:var(--son);font-weight:700}
+.fact p{margin-top:8px;color:var(--muc-nhat);font-size:14.5px}
+@media (max-width:700px){.facts{grid-template-columns:1fr}}
+.how{background:var(--son-deep);color:var(--nga);padding:64px 0}
+.how h2{color:var(--vang);font-size:clamp(28px,3.6vw,40px)}
+.how .sub{color:rgba(248,238,220,.75)}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;counter-reset:s}
+.step{border:1px solid rgba(213,164,73,.35);border-radius:var(--r);padding:22px;counter-increment:s;position:relative}
+.step::before{content:counter(s);position:absolute;top:-14px;left:18px;background:var(--vang);color:var(--son-deep);font-family:var(--display);font-weight:700;font-size:18px;width:28px;height:28px;border-radius:50%;display:grid;place-items:center}
+.step h3{font-size:24px;color:#fff;margin-top:6px}
+.step p{margin-top:8px;color:rgba(248,238,220,.75);font-size:14.5px}
+@media (max-width:700px){.steps{grid-template-columns:1fr;gap:28px}}
+
+/* Bảng hồ sơ */
+.sheet{border:1px solid var(--giay-line);border-radius:var(--r);overflow:hidden;background:var(--nga)}
+.sheet .row{display:grid;grid-template-columns:200px 1fr;gap:16px;padding:14px 18px;border-top:1px solid var(--giay-line);font-size:15px}
+.sheet .row:first-child{border-top:0}
+.sheet .row b{color:var(--son);font-weight:600}
+@media (max-width:560px){.sheet .row{grid-template-columns:1fr;gap:4px}}
+.ask{display:grid;gap:14px}
+.ask li{display:grid;grid-template-columns:44px 1fr;gap:14px;align-items:start}
+.ask li i{font-style:normal;font-family:var(--display);font-size:30px;font-weight:700;color:var(--vang-2);line-height:1}
+.ask li p{font-size:15.5px}
+.method{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.method li{background:var(--nga);border:1px solid var(--giay-line);border-radius:var(--r);padding:18px}
+.method li b{display:block;font-family:var(--display);font-size:22px;color:var(--son);margin-bottom:6px}
+.method li p{font-size:14px;color:var(--muc-nhat)}
+@media (max-width:860px){.method{grid-template-columns:1fr 1fr}}
+@media (max-width:480px){.method{grid-template-columns:1fr}}
+.tl{position:relative;padding-left:26px}
+.tl::before{content:"";position:absolute;left:7px;top:6px;bottom:6px;width:2px;background:var(--giay-line)}
+.tl li{position:relative;padding:0 0 22px}
+.tl li::before{content:"";position:absolute;left:-26px;top:7px;width:16px;height:16px;border-radius:50%;background:var(--vang);border:3px solid var(--giay)}
+.tl li b{display:block;color:var(--son);font-family:var(--display);font-size:22px}
+.tl li p{font-size:15px;color:var(--muc-nhat)}
+.refs li{padding:10px 0;border-top:1px solid var(--giay-line);font-size:14.5px}
+.refs li:first-child{border-top:0}
+.next{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:22px 0 64px;flex-wrap:wrap}
+.next .btn{font-size:14.5px}
+.cta-box{background:var(--son);color:var(--nga);border-radius:var(--r);padding:28px;display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap}
+.cta-box h3{font-size:28px;color:var(--vang)}
+.cta-box p{color:rgba(248,238,220,.8);margin-top:6px;max-width:52ch}
+
+/* Bách khoa */
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin:0 0 30px}
+.chips button{padding:8px 14px;border-radius:999px;border:1px solid var(--giay-line);background:var(--nga);font-size:13.5px;font-weight:500;transition:background .2s,color .2s,border-color .2s}
+.chips button:hover{border-color:var(--son);color:var(--son)}
+.chips button.on{background:var(--son);color:var(--nga);border-color:var(--son)}
+.hist{display:grid;grid-template-columns:repeat(5,1fr);gap:0;border-top:2px solid var(--vang);margin-top:10px}
+.hist li{padding:18px 16px 18px 0;border-right:1px solid var(--giay-line);padding-left:16px}
+.hist li:first-child{padding-left:0}
+.hist li:last-child{border-right:0}
+.hist b{display:block;font-family:var(--display);font-size:26px;color:var(--son);font-weight:700}
+.hist p{font-size:14px;color:var(--muc-nhat);margin-top:6px}
+@media (max-width:900px){.hist{grid-template-columns:1fr 1fr}.hist li{border-right:0;border-bottom:1px solid var(--giay-line);padding-left:0}}
+@media (max-width:520px){.hist{grid-template-columns:1fr}}
+.chieng{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+.chieng li{background:var(--son);color:var(--nga);border-radius:var(--r);padding:20px;min-height:150px;position:relative;overflow:hidden}
+.chieng li::after{content:attr(data-dir);position:absolute;right:-6px;bottom:-22px;font-family:var(--display);font-size:92px;font-weight:700;color:rgba(213,164,73,.16);line-height:1}
+.chieng b{display:block;font-family:var(--display);font-size:26px;color:var(--vang)}
+.chieng p{font-size:14px;color:rgba(248,238,220,.8);margin-top:6px;position:relative}
+@media (max-width:860px){.chieng{grid-template-columns:1fr 1fr}}
+@media (max-width:480px){.chieng{grid-template-columns:1fr}}
+.roles{display:grid;grid-template-columns:repeat(5,1fr);gap:14px}
+.role{background:var(--nga);border:1px solid var(--giay-line);border-radius:var(--r);padding:18px 16px;text-align:center}
+.role .mask{width:72px;height:72px;margin:0 auto 12px;border-radius:50%;background:var(--son);display:grid;place-items:center}
+.role .mask svg{width:44px;height:44px}
+.role b{display:block;font-family:var(--display);font-size:26px;color:var(--son)}
+.role p{font-size:13.5px;color:var(--muc-nhat);margin-top:6px}
+.role em{display:block;font-size:12.5px;color:var(--vang-2);margin-top:8px;font-style:normal;font-weight:600}
+@media (max-width:900px){.roles{grid-template-columns:repeat(3,1fr)}}
+@media (max-width:560px){.roles{grid-template-columns:1fr 1fr}}
+.list-cols{columns:2;column-gap:32px}
+.list-cols li{break-inside:avoid;padding:9px 0;border-bottom:1px solid var(--giay-line);font-size:15px;display:flex;justify-content:space-between;gap:12px}
+.list-cols li span{color:var(--muc-nhat);font-size:13.5px}
+@media (max-width:640px){.list-cols{columns:1}}
+.plays{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.play{background:var(--nga);border:1px solid var(--giay-line);border-radius:var(--r);padding:18px;border-top:3px solid var(--vang)}
+.play b{display:block;font-family:var(--display);font-size:24px;color:var(--son)}
+.play p{font-size:14px;color:var(--muc-nhat);margin-top:6px}
+@media (max-width:860px){.plays{grid-template-columns:1fr 1fr}}
+@media (max-width:520px){.plays{grid-template-columns:1fr}}
+.acc{border:1px solid var(--giay-line);border-radius:var(--r);background:var(--nga);overflow:hidden}
+.acc details{border-top:1px solid var(--giay-line)}
+.acc details:first-child{border-top:0}
+.acc summary{list-style:none;cursor:pointer;padding:14px 18px;font-weight:600;font-size:15.5px;display:flex;justify-content:space-between;align-items:center;color:var(--son)}
+.acc summary::-webkit-details-marker{display:none}
+.acc summary::after{content:"+";font-family:var(--display);font-size:24px;color:var(--vang-2);line-height:1}
+.acc details[open] summary::after{content:"–"}
+.acc .body{padding:0 18px 16px;font-size:15px;color:var(--muc-nhat);max-width:70ch}
+
+/* Truyền thông */
+.vids{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.vid{background:var(--nga);border:1px solid var(--giay-line);border-radius:var(--r);overflow:hidden;text-align:left;display:block;width:100%;transition:transform .4s var(--ease),box-shadow .4s var(--ease)}
+.vid:hover{transform:translateY(-3px);box-shadow:0 18px 40px -24px rgba(91,14,28,.6)}
+.vid .thumb{aspect-ratio:16/9;position:relative;display:grid;place-items:center;overflow:hidden}
+.vid .thumb.a{background:linear-gradient(135deg,#7A1727,#3B0A14)}
+.vid .thumb.b{background:linear-gradient(135deg,#B7862F,#5B0E1C)}
+.vid .thumb.c{background:linear-gradient(135deg,#2B070E,#7A1727 70%)}
+.vid .thumb::before{content:"";position:absolute;inset:0;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 48 48'><path d='M24 4c2 8 8 14 16 16-8 2-14 8-16 16-2-8-8-14-16-16 8-2 14-8 16-16z' fill='none' stroke='%23D5A449' stroke-opacity='.18'/></svg>")}
+.vid .play-ico{position:relative;width:54px;height:54px;border-radius:50%;background:var(--vang);display:grid;place-items:center;color:var(--son-deep)}
+.vid .play-ico .ico{width:22px;height:22px;fill:currentColor;stroke:none;margin-left:3px}
+.vid .dur{position:absolute;right:10px;bottom:10px;background:rgba(0,0,0,.55);color:#fff;font-size:12px;padding:3px 8px;border-radius:6px}
+.vid .meta{padding:14px 16px}
+.vid .meta b{display:block;font-size:15.5px;line-height:1.3}
+.vid .meta span{display:block;font-size:13px;color:var(--muc-nhat);margin-top:4px}
+@media (max-width:860px){.vids{grid-template-columns:1fr 1fr}}
+@media (max-width:520px){.vids{grid-template-columns:1fr}}
+.gal{display:grid;grid-template-columns:repeat(4,1fr);grid-auto-rows:150px;gap:12px}
+.gal figure{margin:0;border-radius:12px;overflow:hidden;position:relative;background:var(--son)}
+.gal figure.tall{grid-row:span 2}
+.gal figure.wide{grid-column:span 2}
+.gal figure svg{position:absolute;inset:0;width:100%;height:100%}
+.gal figcaption{position:absolute;left:0;right:0;bottom:0;padding:10px 12px;font-size:12.5px;color:var(--nga);background:linear-gradient(0deg,rgba(43,7,14,.85),transparent)}
+@media (max-width:760px){.gal{grid-template-columns:1fr 1fr;grid-auto-rows:130px}}
+.posts li{display:grid;grid-template-columns:90px 1fr;gap:18px;padding:16px 0;border-top:1px solid var(--giay-line);align-items:center}
+.posts li:first-child{border-top:0}
+.posts .d{font-family:var(--display);font-size:22px;color:var(--son);font-weight:700;line-height:1.1}
+.posts .d small{display:block;font-family:var(--body);font-size:12px;color:var(--muc-nhat);font-weight:500}
+.posts b{display:block;font-size:16px}
+.posts p{font-size:14px;color:var(--muc-nhat);margin-top:3px}
+.chan{display:flex;gap:10px;flex-wrap:wrap}
+.chan a{display:inline-flex;align-items:center;gap:8px;padding:10px 16px;border-radius:999px;border:1.5px solid var(--son);color:var(--son);font-weight:600;font-size:14px}
+.chan a:hover{background:var(--son);color:var(--nga)}
+
+/* Trải nghiệm: quiz */
+.quiz{background:var(--nga);border:1px solid var(--giay-line);border-radius:var(--r);overflow:hidden;max-width:760px}
+.quiz .head{display:flex;justify-content:space-between;align-items:center;padding:14px 20px;border-bottom:1px solid var(--giay-line);font-size:13.5px;color:var(--muc-nhat)}
+.quiz .bar{height:4px;background:var(--giay-2)}
+.quiz .bar i{display:block;height:100%;background:var(--vang);width:0;transition:width .5s var(--ease)}
+.quiz .q{padding:26px 22px 8px;font-family:var(--display);font-size:clamp(22px,3vw,28px);color:var(--son);font-weight:600;line-height:1.25}
+.opts{display:grid;gap:10px;padding:14px 22px 22px}
+.opt{text-align:left;border:1.5px solid var(--giay-line);border-radius:12px;padding:13px 16px;font-size:15.5px;background:#fff;display:flex;gap:12px;align-items:center;transition:border-color .2s,background .2s}
+.opt i{font-style:normal;width:28px;height:28px;border-radius:50%;border:1.5px solid var(--giay-line);display:grid;place-items:center;font-size:13px;font-weight:600;color:var(--muc-nhat);flex:none}
+.opt:hover{border-color:var(--son)}
+.opt.ok{border-color:#2E7D4F;background:#EAF5EE}
+.opt.ok i{background:#2E7D4F;border-color:#2E7D4F;color:#fff}
+.opt.no{border-color:#B3261E;background:#FBECEA}
+.opt.no i{background:#B3261E;border-color:#B3261E;color:#fff}
+.opt:disabled{cursor:default}
+.expl{margin:0 22px 22px;padding:14px 16px;border-left:3px solid var(--vang);background:var(--giay);font-size:14.5px;color:var(--muc);display:none}
+.expl.show{display:block}
+.quiz .foot{display:flex;justify-content:flex-end;padding:0 22px 22px}
+.result{padding:36px 22px;text-align:center}
+.result .score{font-family:var(--display);font-size:84px;font-weight:700;color:var(--son);line-height:1}
+.result .score small{font-size:32px;color:var(--muc-nhat)}
+.result h3{font-size:28px;color:var(--son);margin-top:10px}
+.result p{color:var(--muc-nhat);margin-top:8px;max-width:48ch;margin-inline:auto}
+.result .acts{display:flex;gap:10px;justify-content:center;margin-top:22px;flex-wrap:wrap}
+
+/* Khảo sát & phản hồi */
+.survey{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.survey .card{background:var(--nga);border:1px solid var(--giay-line);border-radius:var(--r);padding:24px}
+.survey .card h3{font-size:26px;color:var(--son)}
+.survey .card p{color:var(--muc-nhat);margin-top:8px;font-size:15px}
+.survey .card .btn{margin-top:18px}
+@media (max-width:760px){.survey{grid-template-columns:1fr}}
+.form{display:grid;gap:12px;margin-top:16px}
+.form label{font-size:13px;font-weight:600;color:var(--son);display:grid;gap:6px}
+.form input,.form textarea,.form select{border:1.5px solid var(--giay-line);border-radius:10px;padding:11px 13px;background:#fff;font-size:15px;width:100%}
+.form input:focus,.form textarea:focus,.form select:focus{outline:0;border-color:var(--son)}
+.form textarea{min-height:96px;resize:vertical}
+.form .two{gap:12px}
+
+/* Modal video, toast, footer */
+.modal{position:fixed;inset:0;z-index:60;background:rgba(20,4,8,.8);display:none;align-items:center;justify-content:center;padding:20px}
+.modal.open{display:flex}
+.modal .box{background:var(--son-deep);color:var(--nga);border:1px solid rgba(213,164,73,.4);border-radius:var(--r);width:min(900px,100%);overflow:hidden}
+.modal .box .bar{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-bottom:1px solid rgba(213,164,73,.3);font-size:14px}
+.modal .frame{aspect-ratio:16/9;background:#000;display:grid;place-items:center;text-align:center;padding:20px;color:rgba(248,238,220,.75);font-size:14.5px}
+.modal .frame iframe{width:100%;height:100%;border:0}
+.modal .x{width:34px;height:34px;border-radius:8px;display:grid;place-items:center;border:1px solid rgba(213,164,73,.4)}
+.toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,20px);background:var(--son-deep);color:var(--nga);border:1px solid rgba(213,164,73,.5);padding:12px 18px;border-radius:12px;font-size:14px;opacity:0;pointer-events:none;transition:opacity .3s,transform .4s var(--ease);z-index:70;max-width:min(92vw,420px)}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+footer{background:var(--son-deep);color:rgba(248,238,220,.75);border-top:1px solid rgba(213,164,73,.3);padding:40px 0 28px;font-size:14px}
+footer .wrap{display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:28px}
+footer h4{font-size:22px;color:var(--vang);margin-bottom:10px}
+footer li{padding:4px 0}
+footer a:hover{color:#fff}
+footer .copy{grid-column:1/-1;border-top:1px solid rgba(213,164,73,.2);padding-top:16px;margin-top:8px;font-size:13px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+@media (max-width:760px){footer .wrap{grid-template-columns:1fr}}
+
+/* Hạt film cố định, chỉ trên pseudo-element fixed */
+body::after{content:"";position:fixed;inset:0;z-index:30;pointer-events:none;opacity:.045;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/></filter><rect width='180' height='180' filter='url(%23n)'/></svg>")}
+.sec{padding-block:88px}
+.sec + .sec{padding-top:0}
+.rail{padding-block:96px 40px}
+.how{padding:96px 0}
+/* Hiện dần khi cuộn */
+.rv{opacity:0;transform:translateY(22px);transition:opacity .9s var(--ease),transform .9s var(--ease)}
+.rv.in{opacity:1;transform:none}
+.stops .stop:nth-child(2),.facts .fact:nth-child(2),.steps .step:nth-child(2),.roles .role:nth-child(2),.plays .play:nth-child(2),.vids .vid:nth-child(2),.method li:nth-child(2),.chieng li:nth-child(2){transition-delay:.08s}
+.stops .stop:nth-child(3),.facts .fact:nth-child(3),.steps .step:nth-child(3),.roles .role:nth-child(3),.plays .play:nth-child(3),.vids .vid:nth-child(3),.method li:nth-child(3),.chieng li:nth-child(3){transition-delay:.16s}
+.stops .stop:nth-child(4),.roles .role:nth-child(4),.plays .play:nth-child(4),.vids .vid:nth-child(4),.method li:nth-child(4),.chieng li:nth-child(4){transition-delay:.24s}
+.roles .role:nth-child(5),.plays .play:nth-child(5),.vids .vid:nth-child(5){transition-delay:.32s}
+.plays .play:nth-child(6),.vids .vid:nth-child(6){transition-delay:.4s}
+@media (prefers-reduced-motion:reduce){.rv{opacity:1;transform:none}}
+/* Vòng tròn icon trong nút */
+.btn .tail{width:30px;height:30px;border-radius:50%;background:rgba(43,7,14,.12);display:inline-flex;align-items:center;justify-content:center;margin:-8px -12px -8px 2px;transition:transform .5s var(--ease)}
+.btn-son .tail,.btn-line .tail{background:rgba(213,164,73,.22)}
+.btn:hover .tail{transform:translate(3px,-1px)}
+.btn .tail .ico{width:15px;height:15px}
+/* Viền mềm, bóng khuếch tán, thẻ lồng hai lớp */
+.stop,.sheet,.method li,.role,.play,.acc,.survey .card{border-color:rgba(91,14,28,.12);box-shadow:0 1px 0 rgba(255,255,255,.6) inset,0 20px 50px -36px rgba(91,14,28,.35)}
+.vid{background:var(--giay-2);border:1px solid rgba(91,14,28,.12);padding:6px;border-radius:20px}
+.vid .thumb{border-radius:14px}
+.vid .meta{padding:14px 12px 10px}
+.quiz{background:var(--giay-2);border:1px solid rgba(91,14,28,.12);padding:6px;border-radius:22px;box-shadow:0 30px 60px -40px rgba(91,14,28,.45)}
+.quiz>.head{background:var(--nga);border-radius:16px 16px 0 0;border-bottom:1px solid rgba(91,14,28,.08)}
+.quiz>.bar{background:var(--nga)}
+.quiz>#q-body{background:var(--nga);border-radius:0 0 16px 16px}
+.band .wrap{padding-top:84px;padding-bottom:64px}
+.hero .wrap{padding-top:88px}
+
+/* Header co giãn */
+.top .wrap{min-width:0}
+.brand{min-width:0;flex:1 1 auto}
+.brand>span{min-width:0;display:block}
+.brand small{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+@media (max-width:1120px){.nav a{padding:8px 9px;font-size:13px}}
+@media (max-width:980px){.top .wrap{gap:12px}.burger{flex:none;margin-left:0}}
+@media (max-width:600px){.brand small{display:none}.brand b{font-size:22px}.brand svg{width:34px;height:34px}}
+@media (max-width:860px){.fan-wrap{max-width:240px}.hero .lead{font-size:15px}.hero-foot .wrap{gap:8px 20px}}
+@media (max-width:480px){.band .num{font-size:72px}.sec h2{font-size:28px}.next{justify-content:stretch}.next .btn{flex:1;justify-content:center}.hero .acts .btn{flex:1;justify-content:center}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="#/" aria-label="Sóng Chèo, về trang chủ">
+      <svg viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="19" fill="none" stroke="#D5A449" stroke-width="1.5"/><g stroke="#D5A449" stroke-width="1.6" stroke-linecap="round"><path d="M20 31 L8 15"/><path d="M20 31 L13 11"/><path d="M20 31 L20 9"/><path d="M20 31 L27 11"/><path d="M20 31 L32 15"/></g><path d="M8 15 Q20 5 32 15" fill="none" stroke="#D5A449" stroke-width="1.6"/><circle cx="20" cy="31" r="2" fill="#D5A449"/></svg>
+      <span><b>SÓNG CHÈO</b><small>Chuyển động số nghệ thuật truyền thống</small></span>
+    </a>
+    <nav class="nav" id="nav" aria-label="Các trạm">
+      <a href="#/tram-1" data-route="tram-1"><span>Trạm 1</span>Hồ sơ KHKT</a>
+      <a href="#/tram-2" data-route="tram-2"><span>Trạm 2</span>Bách khoa</a>
+      <a href="#/tram-3" data-route="tram-3"><span>Trạm 3</span>Truyền thông</a>
+      <a href="#/tram-4" data-route="tram-4"><span>Trạm 4</span>Trải nghiệm</a>
+    </nav>
+    <a class="btn btn-vang" href="#/tram-4" data-goto="khao-sat">Khảo sát ngay</a>
+    <button class="burger" id="burger" aria-label="Mở menu" aria-expanded="false" aria-controls="nav"><svg class="ico" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button>
+  </div>
+</header>
+
+<main>
+<!-- ============ TRANG CHỦ ============ -->
+<section class="page" id="page-home" data-page="home">
+  <div class="hero">
+    <div class="wrap">
+      <div>
+        <span class="tag">Dự án nghiên cứu khoa học kỹ thuật</span>
+        <h1>Sóng<br>Chèo</h1>
+        <p class="quote">"Sóng Chèo – Giữ hồn cốt quê hương qua không gian số"</p>
+        <p class="lead">Ứng dụng công nghệ và truyền thông đa phương tiện để lưu giữ, tái tạo và lan tỏa sức sống của nghệ thuật sân khấu Chèo cổ truyền đến thế hệ trẻ Gen Z. Đi qua bốn trạm: đọc hồ sơ, tra bách khoa, xem tư liệu và tự kiểm tra hiểu biết của bạn.</p>
+        <div class="acts">
+          <a class="btn btn-vang" href="#/tram-1">Bắt đầu từ Trạm 1 <span class="tail"><svg class="ico" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+          <a class="btn btn-line" href="#/tram-4" data-goto="khao-sat">Tham gia khảo sát</a>
+        </div>
+      </div>
+      <div class="fan-wrap" aria-hidden="true">
+        <div class="fan-ring"></div>
+        <svg class="fan closed" id="fan" viewBox="0 0 200 200">
+          <defs>
+            <linearGradient id="gleaf" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#E8C068"/><stop offset="1" stop-color="#B7862F"/></linearGradient>
+          </defs>
+          <g id="leaves">
+            <path class="leaf" style="--close:70deg" d="M100 170 L22 92 A110 110 0 0 1 40 72 Z" fill="url(#gleaf)" opacity=".92"/>
+            <path class="leaf" style="--close:52deg" d="M100 170 L40 72 A110 110 0 0 1 62 56 Z" fill="#7A1727" opacity=".95"/>
+            <path class="leaf" style="--close:34deg" d="M100 170 L62 56 A110 110 0 0 1 86 46 Z" fill="url(#gleaf)" opacity=".92"/>
+            <path class="leaf" style="--close:16deg" d="M100 170 L86 46 A110 110 0 0 1 114 46 Z" fill="#7A1727" opacity=".95"/>
+            <path class="leaf" style="--close:-2deg" d="M100 170 L114 46 A110 110 0 0 1 138 56 Z" fill="url(#gleaf)" opacity=".92"/>
+            <path class="leaf" style="--close:-20deg" d="M100 170 L138 56 A110 110 0 0 1 160 72 Z" fill="#7A1727" opacity=".95"/>
+            <path class="leaf" style="--close:-38deg" d="M100 170 L160 72 A110 110 0 0 1 178 92 Z" fill="url(#gleaf)" opacity=".92"/>
+          </g>
+          <g stroke="#F0DCA8" stroke-width=".8" opacity=".9">
+            <path d="M100 170 L22 92"/><path d="M100 170 L40 72"/><path d="M100 170 L62 56"/><path d="M100 170 L86 46"/><path d="M100 170 L114 46"/><path d="M100 170 L138 56"/><path d="M100 170 L160 72"/><path d="M100 170 L178 92"/>
+          </g>
+          <path d="M22 92 A110 110 0 0 1 178 92" fill="none" stroke="#F0DCA8" stroke-width="1.4"/>
+          <path d="M44 109 A78 78 0 0 1 156 109" fill="none" stroke="#2B070E" stroke-width=".9" opacity=".5"/>
+          <g fill="#2B070E" opacity=".75"><circle cx="100" cy="66" r="2.2"/><circle cx="74" cy="76" r="1.6"/><circle cx="126" cy="76" r="1.6"/><circle cx="56" cy="96" r="1.3"/><circle cx="144" cy="96" r="1.3"/></g>
+          <circle cx="100" cy="170" r="5" fill="#F0DCA8"/>
+          <circle cx="100" cy="170" r="2" fill="#2B070E"/>
+          <path d="M100 175 q-6 12 2 20" fill="none" stroke="#F0DCA8" stroke-width="1.4" stroke-linecap="round"/>
+        </svg>
+      </div>
+    </div>
+    <div class="hero-foot">
+      <div class="wrap">
+        <span><b>Lĩnh vực</b> Khoa học xã hội và hành vi</span>
+        <span><b>Đối tượng</b> Học sinh, sinh viên 15–24 tuổi</span>
+        <span><b>Sản phẩm</b> Website tương tác + bộ tư liệu số</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="rail wrap">
+    <h2>Bốn trạm của hành trình</h2>
+    <p class="sub">Mỗi trạm là một trang riêng. Đi theo thứ tự hoặc vào thẳng trạm bạn quan tâm.</p>
+    <div class="stops">
+      <a class="stop" href="#/tram-1"><div class="dot">1</div><h3><span>Trạm 1</span>Hồ sơ KHKT</h3><p>Đề tài, câu hỏi nghiên cứu, phương pháp và tiến độ thực hiện của nhóm.</p><span class="go">Vào trạm <svg class="ico" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+      <a class="stop" href="#/tram-2"><div class="dot">2</div><h3><span>Trạm 2</span>Bách khoa</h3><p>Lịch sử, tứ chiếng chèo, mô hình nhân vật, làn điệu, vở diễn và thuật ngữ.</p><span class="go">Vào trạm <svg class="ico" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+      <a class="stop" href="#/tram-3"><div class="dot">3</div><h3><span>Trạm 3</span>Truyền thông</h3><p>Video, hình ảnh, bài viết sưu tầm và các kênh lan tỏa của dự án.</p><span class="go">Vào trạm <svg class="ico" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+      <a class="stop" href="#/tram-4"><div class="dot">4</div><h3><span>Trạm 4</span>Trải nghiệm</h3><p>Trả lời câu hỏi, xem kết quả, tham gia khảo sát và gửi phản hồi.</p><span class="go">Vào trạm <svg class="ico" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+    </div>
+  </div>
+
+  <div class="sec wrap">
+    <h2>Vì sao là Chèo?</h2>
+    <div class="rule"></div>
+    <div class="facts">
+      <div class="fact"><b>Thế kỷ X</b><p>Chèo được cho là hình thành từ thời Đinh ở đồng bằng sông Hồng, gắn với bà tổ nghề Phạm Thị Trân.</p></div>
+      <div class="fact"><b>Hơn 200</b><p>làn điệu được ghi nhận, chia theo các hệ thống như Sắp, Sử, Đường trường, Vãn, Hề.</p></div>
+      <div class="fact"><b>Tứ chiếng</b><p>Đông, Đoài, Nam, Bắc: bốn vùng chèo với phong cách diễn và lối hát riêng.</p></div>
+    </div>
+  </div>
+
+  <div class="how">
+    <div class="wrap">
+      <h2>Website này dùng như thế nào</h2>
+      <p class="sub">Không mua bán, không đăng ký tài khoản. Ba việc bạn có thể làm ở đây.</p>
+      <div class="steps" style="margin-top:34px">
+        <div class="step"><h3>Xem</h3><p>Đọc hồ sơ nghiên cứu và tra cứu bách khoa về Chèo được nhóm sưu tầm, biên soạn.</p></div>
+        <div class="step"><h3>Tương tác</h3><p>Mở video, lật hình ảnh, giở từng mục thuật ngữ, thử nhận diện nhân vật.</p></div>
+        <div class="step"><h3>Trả lời</h3><p>Làm bộ câu hỏi, nhận kết quả ngay và tham gia khảo sát để góp dữ liệu cho đề tài.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ TRẠM 1 ============ -->
+<section class="page" id="page-tram-1" data-page="tram-1">
+  <div class="band"><div class="wrap">
+    <div class="num"><small>Trạm 1</small>01</div>
+    <div><h1>Hồ sơ khoa học kỹ thuật</h1><p>Toàn bộ thông tin về đề tài: lý do chọn, câu hỏi nghiên cứu, giả thuyết, phương pháp, tiến độ và sản phẩm dự kiến.</p></div>
+  </div></div>
+
+  <div class="sec wrap">
+    <h2>Tóm tắt đề tài</h2>
+    <div class="rule"></div>
+    <div class="sheet">
+      <div class="row"><b>Tên đề tài</b><span>Sóng Chèo: Ứng dụng công nghệ số và truyền thông đa phương tiện để lan tỏa nghệ thuật Chèo đến thế hệ Gen Z</span></div>
+      <div class="row"><b>Lĩnh vực</b><span>Khoa học xã hội và hành vi</span></div>
+      <div class="row"><b>Nhóm thực hiện</b><span>[Họ tên học sinh 1], [Họ tên học sinh 2]</span></div>
+      <div class="row"><b>Giáo viên hướng dẫn</b><span>[Họ tên giáo viên]</span></div>
+      <div class="row"><b>Đơn vị</b><span>[Tên trường]</span></div>
+      <div class="row"><b>Thời gian</b><span>09/2025 – 01/2026</span></div>
+      <div class="row"><b>Sản phẩm</b><span>Website tương tác 4 trạm, bộ tư liệu video và hình ảnh, bộ câu hỏi và báo cáo khảo sát</span></div>
+    </div>
+  </div>
+
+  <div class="sec wrap two">
+    <div>
+      <h2>Lý do chọn đề tài</h2>
+      <div class="rule"></div>
+      <div class="prose">
+        <p>Chèo là loại hình sân khấu dân gian tiêu biểu của đồng bằng Bắc Bộ, nhưng với phần lớn người trẻ hôm nay, Chèo chỉ còn là một cái tên trong sách giáo khoa. Các buổi diễn ít dần, cách tiếp cận cũ không còn hợp với thói quen xem nội dung ngắn, tương tác và theo nhu cầu của Gen Z.</p>
+        <p>Nhóm đặt câu hỏi: nếu đưa Chèo lên một không gian số được thiết kế đúng cách người trẻ đang dùng, mức độ quan tâm và hiểu biết của họ có thay đổi không? Sóng Chèo ra đời để thử trả lời câu hỏi đó bằng một sản phẩm cụ thể và số liệu thu được từ chính người dùng.</p>
+      </div>
+    </div>
+    <div>
+      <h2>Câu hỏi nghiên cứu</h2>
+      <div class="rule"></div>
+      <ol class="ask">
+        <li><i>1</i><p>Học sinh, sinh viên 15–24 tuổi hiện biết gì và nghĩ gì về nghệ thuật Chèo?</p></li>
+        <li><i>2</i><p>Hình thức nội dung số nào (video ngắn, bách khoa tương tác, câu đố) khiến họ ở lại lâu hơn và nhớ nhiều hơn?</p></li>
+        <li><i>3</i><p>Sau khi trải nghiệm website, mức độ hứng thú và hiểu biết về Chèo thay đổi ra sao so với trước?</p></li>
+      </ol>
+      <h2 style="margin-top:30px">Giả thuyết</h2>
+      <div class="rule"></div>
+      <p class="prose">Người trẻ không thờ ơ với Chèo, họ chỉ thiếu một lối vào phù hợp. Một không gian số có tương tác và câu hỏi tự kiểm tra sẽ làm tăng đáng kể điểm hiểu biết và mức độ sẵn sàng tìm hiểu thêm so với chỉ đọc tài liệu tĩnh.</p>
+    </div>
+  </div>
+
+  <div class="sec wrap">
+    <h2>Phương pháp</h2>
+    <p class="sub">Bốn bước, mỗi bước cho ra một kết quả có thể kiểm chứng.</p>
+    <ol class="method">
+      <li><b>Khảo sát đầu vào</b><p>Phiếu khảo sát trực tuyến về nhận thức và thái độ với Chèo, mục tiêu 300 phản hồi.</p></li>
+      <li><b>Sưu tầm tư liệu</b><p>Tập hợp video, hình ảnh, tài liệu về Chèo; phỏng vấn nghệ sĩ, người xem lâu năm.</p></li>
+      <li><b>Xây dựng sản phẩm</b><p>Thiết kế website 4 trạm, bộ 10 câu hỏi và bách khoa ngắn gọn theo ngôn ngữ người trẻ.</p></li>
+      <li><b>Thực nghiệm, đánh giá</b><p>Cho nhóm thử dùng website, đo lại hiểu biết và hứng thú, so sánh trước và sau.</p></li>
+    </ol>
+  </div>
+
+  <div class="sec wrap two">
+    <div>
+      <h2>Tiến độ</h2>
+      <div class="rule"></div>
+      <ol class="tl">
+        <li><b>Tháng 9/2025</b><p>Chọn đề tài, xây dựng đề cương, thiết kế phiếu khảo sát.</p></li>
+        <li><b>Tháng 10/2025</b><p>Khảo sát đầu vào, sưu tầm và phân loại tư liệu.</p></li>
+        <li><b>Tháng 11/2025</b><p>Xây dựng website và bộ câu hỏi, thử nghiệm nội bộ.</p></li>
+        <li><b>Tháng 12/2025</b><p>Thực nghiệm trên nhóm học sinh, thu số liệu sau trải nghiệm.</p></li>
+        <li><b>Tháng 1/2026</b><p>Phân tích, viết báo cáo, hoàn thiện poster và sản phẩm dự thi.</p></li>
+      </ol>
+    </div>
+    <div>
+      <h2>Tài liệu tham khảo</h2>
+      <div class="rule"></div>
+      <ol class="refs">
+        <li>Trần Việt Ngữ, <em>Về nghệ thuật Chèo</em>, Nxb Sân khấu.</li>
+        <li>Hà Văn Cầu, <em>Lịch sử nghệ thuật Chèo</em>, Nxb Sân khấu.</li>
+        <li>Cục Di sản văn hóa, hồ sơ di sản văn hóa phi vật thể quốc gia về nghệ thuật Chèo.</li>
+        <li>Tư liệu video, hình ảnh do nhóm sưu tầm, ghi rõ nguồn tại Trạm 3.</li>
+        <li>[Bổ sung tài liệu của nhóm]</li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="wrap next">
+    <a class="btn btn-line dark" href="#/">Về trang chủ</a>
+    <a class="btn btn-son" href="#/tram-2">Tiếp: Trạm 2, Bách khoa <span class="tail"><svg class="ico" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+  </div>
+</section>
+
+<!-- ============ TRẠM 2 ============ -->
+<section class="page" id="page-tram-2" data-page="tram-2">
+  <div class="band"><div class="wrap">
+    <div class="num"><small>Trạm 2</small>02</div>
+    <div><h1>Bách khoa Chèo</h1><p>Những điều cơ bản để hiểu một đêm chèo: từ đâu mà có, ai diễn, hát điệu gì, diễn vở nào và các từ hay gặp.</p></div>
+  </div></div>
+
+  <div class="sec wrap">
+    <div class="chips" role="tablist" aria-label="Mục trong bách khoa">
+      <button class="on" data-jump="lich-su">Lịch sử</button>
+      <button data-jump="tu-chieng">Tứ chiếng chèo</button>
+      <button data-jump="nhan-vat">Nhân vật</button>
+      <button data-jump="lan-dieu">Làn điệu, nhạc cụ</button>
+      <button data-jump="vo-dien">Vở diễn</button>
+      <button data-jump="thuat-ngu">Thuật ngữ</button>
+    </div>
+
+    <h2 id="lich-su">Lịch sử</h2>
+    <div class="rule"></div>
+    <ol class="hist">
+      <li><b>Thế kỷ X</b><p>Hình thành ở đồng bằng sông Hồng. Tương truyền bà Phạm Thị Trân dạy múa hát trong quân đội thời Đinh, được tôn là bà tổ nghề.</p></li>
+      <li><b>Thế kỷ XIV–XV</b><p>Chèo có lúc vào cung đình, rồi trở lại với làng quê, định hình lối "chiếu chèo sân đình".</p></li>
+      <li><b>Thế kỷ XVIII–XIX</b><p>Các vở chèo cổ kinh điển như Quan Âm Thị Kính, Lưu Bình – Dương Lễ được hoàn chỉnh và truyền miệng qua các phường chèo.</p></li>
+      <li><b>Thế kỷ XX</b><p>Chèo lên sân khấu hộp, các đoàn và nhà hát chèo chuyên nghiệp ra đời, xuất hiện chèo đề tài hiện đại.</p></li>
+      <li><b>Hôm nay</b><p>Được ghi danh di sản văn hóa phi vật thể quốc gia; Việt Nam đã lập hồ sơ đề cử nghệ thuật Chèo lên UNESCO.</p></li>
+    </ol>
+  </div>
+
+  <div class="sec wrap">
+    <h2 id="tu-chieng">Tứ chiếng chèo</h2>
+    <p class="sub">Bốn vùng chèo quanh đồng bằng sông Hồng, mỗi vùng một lối hát, lối diễn.</p>
+    <ul class="chieng">
+      <li data-dir="Đ"><b>Chiếng Đông</b><p>Hải Dương, Hải Phòng. Lối diễn chắc, hát rõ lời, nhiều vai hề sắc sảo.</p></li>
+      <li data-dir="Đ"><b>Chiếng Đoài</b><p>Vùng xứ Đoài: Sơn Tây, Hà Tây cũ, Vĩnh Phúc, Phú Thọ. Chèo gắn với lễ hội đình làng.</p></li>
+      <li data-dir="N"><b>Chiếng Nam</b><p>Thái Bình, Nam Định, Hà Nam, Ninh Bình. Thái Bình với làng Khuốc được xem là cái nôi của chèo.</p></li>
+      <li data-dir="B"><b>Chiếng Bắc</b><p>Bắc Ninh, Bắc Giang. Giao thoa với quan họ, lối hát mềm, nhiều luyến láy.</p></li>
+    </ul>
+  </div>
+
+  <div class="sec wrap">
+    <h2 id="nhan-vat">Mô hình nhân vật</h2>
+    <p class="sub">Chèo không có nhân vật "riêng" như kịch nói. Diễn viên vào một trong năm mô hình, khán giả nhìn là biết ngay.</p>
+    <ul class="roles">
+      <li class="role"><div class="mask"><svg viewBox="0 0 44 44" fill="none" stroke="#F0DCA8" stroke-width="1.6" stroke-linecap="round"><ellipse cx="22" cy="24" rx="12" ry="14"/><path d="M10 20q12-14 24 0"/><path d="M16 24h4M24 24h4"/><path d="M18 31q4 3 8 0"/></svg></div><b>Đào</b><p>Vai nữ. Đào thương hiền thục chịu đựng, đào lệch lẳng lơ phá cách.</p><em>Thị Kính, Thị Mầu</em></li>
+      <li class="role"><div class="mask"><svg viewBox="0 0 44 44" fill="none" stroke="#F0DCA8" stroke-width="1.6" stroke-linecap="round"><ellipse cx="22" cy="24" rx="12" ry="14"/><path d="M12 14h20"/><path d="M16 24h4M24 24h4"/><path d="M18 31h8"/></svg></div><b>Kép</b><p>Vai nam. Thường là thư sinh, người chồng, người bạn trong các tích truyện.</p><em>Lưu Bình, Dương Lễ</em></li>
+      <li class="role"><div class="mask"><svg viewBox="0 0 44 44" fill="none" stroke="#F0DCA8" stroke-width="1.6" stroke-linecap="round"><ellipse cx="22" cy="24" rx="12" ry="14"/><path d="M15 22l3 2 3-2M23 22l3 2 3-2"/><path d="M16 30q6 6 12 0"/><circle cx="22" cy="16" r="1.5" fill="#F0DCA8"/></svg></div><b>Hề</b><p>Gây cười và châm biếm. Hề áo ngắn là người hầu, hề áo dài là thầy bói, thầy cúng.</p><em>Mẹ Đốp, hề gậy</em></li>
+      <li class="role"><div class="mask"><svg viewBox="0 0 44 44" fill="none" stroke="#F0DCA8" stroke-width="1.6" stroke-linecap="round"><ellipse cx="22" cy="24" rx="12" ry="14"/><path d="M16 23h4M24 23h4"/><path d="M14 33q8-6 16 0"/><path d="M12 18q10-6 20 0"/></svg></div><b>Lão</b><p>Ông già. Có lão say, lão chài, lão mục đồng, phần nhiều hiền lành, chất phác.</p><em>Mãng ông</em></li>
+      <li class="role"><div class="mask"><svg viewBox="0 0 44 44" fill="none" stroke="#F0DCA8" stroke-width="1.6" stroke-linecap="round"><ellipse cx="22" cy="24" rx="12" ry="14"/><path d="M10 22q12-10 24 0"/><path d="M16 25h4M24 25h4"/><path d="M18 32h8"/></svg></div><b>Mụ</b><p>Bà già. Mụ ác, mụ thiện, mụ mối. Thường tạo xung đột cho tích truyện.</p><em>Sùng bà</em></li>
+    </ul>
+  </div>
+
+  <div class="sec wrap two">
+    <div>
+      <h2 id="lan-dieu">Làn điệu</h2>
+      <p class="sub">Hơn 200 làn điệu, mỗi điệu dùng cho một tâm trạng. Một vài điệu hay gặp:</p>
+      <ul class="list-cols">
+        <li>Lới lơ <span>vui, duyên dáng</span></li>
+        <li>Con gà rừng <span>điên dại, bất an</span></li>
+        <li>Đào liễu <span>trữ tình</span></li>
+        <li>Quân tử vu dịch <span>tiễn biệt</span></li>
+        <li>Sử rầu <span>kể lể, buồn</span></li>
+        <li>Luyện năm cung <span>da diết</span></li>
+        <li>Đường trường <span>trần tình, tự sự</span></li>
+        <li>Hề mồi <span>gây cười</span></li>
+        <li>Sắp qua cầu <span>rộn ràng</span></li>
+        <li>Vãn <span>than thở</span></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Nhạc cụ</h2>
+      <p class="sub">Dàn nhạc chèo nhỏ, ngồi ngay mép chiếu, tiếng trống đế dẫn nhịp cả đêm diễn.</p>
+      <ul class="list-cols">
+        <li>Trống đế <span>giữ nhịp, "đế" lời</span></li>
+        <li>Nhị <span>kéo theo giọng hát</span></li>
+        <li>Sáo trúc <span>luyến theo làn điệu</span></li>
+        <li>Đàn nguyệt <span>đệm, dạo</span></li>
+        <li>Đàn tam <span>nền trầm</span></li>
+        <li>Đàn bầu <span>độc tấu, nỉ non</span></li>
+        <li>Mõ, thanh la <span>điểm nhịp</span></li>
+        <li>Sênh tiền <span>gõ, múa</span></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="sec wrap">
+    <h2 id="vo-dien">Vở diễn kinh điển</h2>
+    <p class="sub">Những tích chèo cổ còn được diễn đến nay.</p>
+    <ul class="plays">
+      <li class="play"><b>Quan Âm Thị Kính</b><p>Thị Kính chịu oan giết chồng, giả trai đi tu, lại bị Thị Mầu vu oan. Tích chèo được biết đến nhiều nhất.</p></li>
+      <li class="play"><b>Lưu Bình – Dương Lễ</b><p>Chuyện tình bạn và sự hy sinh của Châu Long, người vợ được gửi đi nuôi bạn ăn học.</p></li>
+      <li class="play"><b>Kim Nham</b><p>Có trích đoạn "Xúy Vân giả dại" nổi tiếng với điệu Con gà rừng, đỉnh cao của vai đào lệch.</p></li>
+      <li class="play"><b>Trương Viên</b><p>Chàng Trương Viên đi lính, mẹ và vợ lưu lạc, Thị Phương móc mắt dâng thần để cứu mẹ chồng.</p></li>
+      <li class="play"><b>Chu Mãi Thần</b><p>Người chồng nghèo ham học, vợ bỏ đi theo người giàu, sau hối hận khi chồng đỗ đạt.</p></li>
+      <li class="play"><b>Từ Thức gặp tiên</b><p>Tích thần tiên: Từ Thức lên cõi tiên rồi trở về, quê cũ đã trăm năm.</p></li>
+    </ul>
+  </div>
+
+  <div class="sec wrap">
+    <h2 id="thuat-ngu">Thuật ngữ hay gặp</h2>
+    <div class="rule"></div>
+    <div class="acc">
+      <details open><summary>Chiếu chèo sân đình</summary><div class="body">Hình thức diễn truyền thống: trải chiếu giữa sân đình, khán giả ngồi ba mặt, dàn nhạc ở mép chiếu. Không phông màn, không cảnh trí, người diễn tự tạo không gian bằng động tác và lời.</div></details>
+      <details><summary>Trống đế</summary><div class="body">Trống nhỏ, tiếng đanh, do người nhạc công giữ nhịp đánh. Trống đế vừa giữ tiết tấu vừa "đế", tức xen tiếng trống hoặc lời vào giữa câu hát để nhấn, chọc, hỏi lại nhân vật.</div></details>
+      <details><summary>Tiếng đế</summary><div class="body">Lời nói vọng từ dàn nhạc hoặc khán giả đáp lại nhân vật trên chiếu. Đây là nét riêng của chèo: khán giả tham gia vào vở diễn, không chỉ ngồi xem.</div></details>
+      <details><summary>Làn điệu</summary><div class="body">Bài bản giai điệu có sẵn, diễn viên "bẻ" lời mới vào. Mỗi làn điệu mang một sắc thái tình cảm nên khán giả quen nghe nhạc là đoán được tâm trạng nhân vật.</div></details>
+      <details><summary>Nói sử, vỉa, ngâm</summary><div class="body">Các lối nói có nhạc tính trước khi vào hát. Vỉa là mấy câu ngâm dạo mở ra làn điệu, nói sử là kể chuyện có nhịp, ngâm là lối ngâm thơ.</div></details>
+      <details><summary>Múa quạt</summary><div class="body">Chiếc quạt là đạo cụ quan trọng nhất của đào chèo. Quạt mở, quạt khép, quạt che mặt, quạt chỉ đường, mỗi cách cầm diễn tả một ý.</div></details>
+      <details><summary>Phường chèo, gánh chèo</summary><div class="body">Đội diễn chèo của một làng hoặc một gia đình, đi diễn ở các hội làng. Người đứng đầu gọi là ông trùm.</div></details>
+    </div>
+  </div>
+
+  <div class="wrap next">
+    <a class="btn btn-line dark" href="#/tram-1">Quay lại Trạm 1</a>
+    <a class="btn btn-son" href="#/tram-3">Tiếp: Trạm 3, Truyền thông <span class="tail"><svg class="ico" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+  </div>
+</section>
+
+<!-- ============ TRẠM 3 ============ -->
+<section class="page" id="page-tram-3" data-page="tram-3">
+  <div class="band"><div class="wrap">
+    <div class="num"><small>Trạm 3</small>03</div>
+    <div><h1>Truyền thông</h1><p>Tư liệu video, hình ảnh và bài viết nhóm sưu tầm, cùng các kênh mà dự án dùng để lan tỏa Chèo đến người trẻ.</p></div>
+  </div></div>
+
+  <div class="sec wrap">
+    <h2>Video sưu tầm</h2>
+    <p class="sub">Bấm để xem ngay trong trang. Nguồn ghi dưới mỗi video.</p>
+    <div class="vids">
+      <button class="vid" data-yt="" data-title="Xúy Vân giả dại"><div class="thumb a"><span class="play-ico"><svg class="ico" viewBox="0 0 24 24"><path d="M7 4v16l13-8z"/></svg></span><span class="dur">06:12</span></div><div class="meta"><b>Trích đoạn "Xúy Vân giả dại"</b><span>Vở Kim Nham · Nguồn: [kênh sưu tầm]</span></div></button>
+      <button class="vid" data-yt="" data-title="Thị Mầu lên chùa"><div class="thumb b"><span class="play-ico"><svg class="ico" viewBox="0 0 24 24"><path d="M7 4v16l13-8z"/></svg></span><span class="dur">08:40</span></div><div class="meta"><b>Trích đoạn "Thị Mầu lên chùa"</b><span>Vở Quan Âm Thị Kính · Nguồn: [kênh sưu tầm]</span></div></button>
+      <button class="vid" data-yt="" data-title="Làn điệu Lới lơ"><div class="thumb c"><span class="play-ico"><svg class="ico" viewBox="0 0 24 24"><path d="M7 4v16l13-8z"/></svg></span><span class="dur">03:25</span></div><div class="meta"><b>Làn điệu Lới lơ</b><span>Hát mẫu có lời · Nguồn: [kênh sưu tầm]</span></div></button>
+      <button class="vid" data-yt="" data-title="Dàn nhạc chèo"><div class="thumb b"><span class="play-ico"><svg class="ico" viewBox="0 0 24 24"><path d="M7 4v16l13-8z"/></svg></span><span class="dur">04:58</span></div><div class="meta"><b>Dàn nhạc chèo và tiếng trống đế</b><span>Phóng sự · Nguồn: [kênh sưu tầm]</span></div></button>
+      <button class="vid" data-yt="" data-title="Phỏng vấn nghệ sĩ"><div class="thumb c"><span class="play-ico"><svg class="ico" viewBox="0 0 24 24"><path d="M7 4v16l13-8z"/></svg></span><span class="dur">12:03</span></div><div class="meta"><b>Phỏng vấn nghệ sĩ chèo về khán giả trẻ</b><span>Nhóm thực hiện · 11/2025</span></div></button>
+      <button class="vid" data-yt="" data-title="Chèo làng Khuốc"><div class="thumb a"><span class="play-ico"><svg class="ico" viewBox="0 0 24 24"><path d="M7 4v16l13-8z"/></svg></span><span class="dur">09:17</span></div><div class="meta"><b>Chiếu chèo làng Khuốc, Thái Bình</b><span>Tư liệu · Nguồn: [kênh sưu tầm]</span></div></button>
+    </div>
+  </div>
+
+  <div class="sec wrap">
+    <h2>Hình ảnh</h2>
+    <p class="sub">Ảnh do nhóm sưu tầm và chụp trong quá trình thực hiện. Bản demo dùng hình minh họa, ảnh thật sẽ thay vào đúng vị trí.</p>
+    <div class="gal">
+      <figure class="tall"><svg viewBox="0 0 200 300" preserveAspectRatio="xMidYMid slice"><rect width="200" height="300" fill="#5B0E1C"/><g stroke="#D5A449" stroke-width="1.2" fill="none"><path d="M100 230 L30 120 A100 100 0 0 1 170 120 Z"/><path d="M100 230 L50 100M100 230 L75 86M100 230 L100 80M100 230 L125 86M100 230 L150 100"/></g></svg><figcaption>Quạt chèo, đạo cụ của đào</figcaption></figure>
+      <figure><svg viewBox="0 0 200 150" preserveAspectRatio="xMidYMid slice"><rect width="200" height="150" fill="#7A1727"/><g stroke="#F0DCA8" stroke-width="1.2" fill="none"><ellipse cx="100" cy="80" rx="46" ry="30"/><ellipse cx="100" cy="68" rx="46" ry="30"/><path d="M54 68v12M146 68v12"/></g></svg><figcaption>Trống đế</figcaption></figure>
+      <figure><svg viewBox="0 0 200 150" preserveAspectRatio="xMidYMid slice"><rect width="200" height="150" fill="#B7862F"/><g stroke="#2B070E" stroke-width="1.2" fill="none"><path d="M40 110h120M40 100h120M40 90h120M40 80h120"/><rect x="30" y="70" width="140" height="50"/></g></svg><figcaption>Chiếu chèo sân đình</figcaption></figure>
+      <figure class="wide"><svg viewBox="0 0 400 150" preserveAspectRatio="xMidYMid slice"><rect width="400" height="150" fill="#2B070E"/><g stroke="#D5A449" stroke-width="1.2" fill="none"><path d="M40 120 L200 30 L360 120"/><path d="M80 120 L200 55 L320 120"/><path d="M0 120h400"/></g></svg><figcaption>Mái đình làng, nơi diễn chèo hội</figcaption></figure>
+      <figure><svg viewBox="0 0 200 150" preserveAspectRatio="xMidYMid slice"><rect width="200" height="150" fill="#5B0E1C"/><g stroke="#F0DCA8" stroke-width="1.2" fill="none"><ellipse cx="100" cy="78" rx="34" ry="42"/><path d="M78 70h14M108 70h14M86 95q14 10 28 0"/></g></svg><figcaption>Hóa trang vai hề</figcaption></figure>
+      <figure><svg viewBox="0 0 200 150" preserveAspectRatio="xMidYMid slice"><rect width="200" height="150" fill="#7A1727"/><g stroke="#D5A449" stroke-width="1.2" fill="none"><path d="M60 120 L60 40 M60 40 q20-10 40 0 q20 10 40 0"/><circle cx="60" cy="120" r="14"/></g></svg><figcaption>Cây nhị</figcaption></figure>
+      <figure><svg viewBox="0 0 200 150" preserveAspectRatio="xMidYMid slice"><rect width="200" height="150" fill="#B7862F"/><g stroke="#2B070E" stroke-width="1.2" fill="none"><rect x="60" y="30" width="80" height="100" rx="6"/><path d="M70 50h60M70 65h60M70 80h40"/></g></svg><figcaption>Phiếu khảo sát tại trường</figcaption></figure>
+    </div>
+  </div>
+
+  <div class="sec wrap two">
+    <div>
+      <h2>Bài viết, infographic</h2>
+      <div class="rule"></div>
+      <ul class="posts">
+        <li><div class="d">05<small>Th10 2025</small></div><div><b>Chèo khác tuồng, cải lương ở điểm nào?</b><p>Infographic 1 trang so sánh ba loại hình sân khấu truyền thống.</p></div></li>
+        <li><div class="d">19<small>Th10 2025</small></div><div><b>5 nhân vật chèo Gen Z nên biết</b><p>Bài viết ngắn kèm hình minh họa, dùng đăng fanpage.</p></div></li>
+        <li><div class="d">02<small>Th11 2025</small></div><div><b>Kết quả khảo sát đầu vào</b><p>Tóm tắt 300 phản hồi: tỉ lệ từng xem chèo, nguồn biết đến, mong muốn.</p></div></li>
+      </ul>
+    </div>
+    <div>
+      <h2>Kênh lan tỏa</h2>
+      <div class="rule"></div>
+      <p class="prose" style="margin-bottom:16px">Dự án đăng nội dung ngắn trên các kênh người trẻ đang dùng. Link sẽ cập nhật khi kênh hoạt động.</p>
+      <div class="chan">
+        <a href="#" data-soon>Fanpage Facebook</a>
+        <a href="#" data-soon>TikTok</a>
+        <a href="#" data-soon>Kênh YouTube</a>
+        <a href="#" data-soon>Instagram</a>
+      </div>
+      <div class="cta-box" style="margin-top:26px">
+        <div><h3>Bạn có tư liệu về Chèo?</h3><p>Ảnh cũ, băng ghi, chuyện kể của ông bà. Gửi cho nhóm để bổ sung vào kho tư liệu, có ghi nguồn.</p></div>
+        <a class="btn btn-vang" href="#/tram-4" data-goto="phan-hoi">Gửi tư liệu</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="wrap next">
+    <a class="btn btn-line dark" href="#/tram-2">Quay lại Trạm 2</a>
+    <a class="btn btn-son" href="#/tram-4">Tiếp: Trạm 4, Trải nghiệm <span class="tail"><svg class="ico" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+  </div>
+</section>
+
+<!-- ============ TRẠM 4 ============ -->
+<section class="page" id="page-tram-4" data-page="tram-4">
+  <div class="band"><div class="wrap">
+    <div class="num"><small>Trạm 4</small>04</div>
+    <div><h1>Trải nghiệm</h1><p>Thử xem bạn nhớ được bao nhiêu sau ba trạm. Rồi dành hai phút cho phiếu khảo sát, đó là dữ liệu chính của đề tài.</p></div>
+  </div></div>
+
+  <div class="sec wrap">
+    <h2>Mười câu về Chèo</h2>
+    <p class="sub">Chọn một đáp án, kết quả hiện ngay kèm giải thích ngắn. Không tính giờ, không lưu tên.</p>
+    <div class="quiz" id="quiz">
+      <div class="head"><span id="q-count">Câu 1 / 10</span><span id="q-score">Đúng: 0</span></div>
+      <div class="bar"><i id="q-bar"></i></div>
+      <div id="q-body"></div>
+    </div>
+  </div>
+
+  <div class="sec wrap" id="khao-sat">
+    <h2>Khảo sát và phản hồi</h2>
+    <div class="rule"></div>
+    <div class="survey">
+      <div class="card">
+        <h3>Phiếu khảo sát của đề tài</h3>
+        <p>Khoảng 2 phút, 12 câu về việc bạn biết gì và nghĩ gì về Chèo, trước và sau khi dùng website này. Không thu thập họ tên.</p>
+        <a class="btn btn-son" href="#" data-survey target="_blank" rel="noopener">Mở phiếu khảo sát <span class="tail"><svg class="ico" viewBox="0 0 24 24"><path d="M7 17L17 7M9 7h8v8"/></svg></span></a>
+        <p style="font-size:13px;margin-top:14px">Link Google Form sẽ gắn vào nút này.</p>
+      </div>
+      <div class="card" id="phan-hoi">
+        <h3>Gửi phản hồi, tư liệu</h3>
+        <p>Góp ý về website hoặc gửi tư liệu về Chèo mà bạn có.</p>
+        <form class="form" id="fb-form" novalidate>
+          <div class="two">
+            <label>Tên bạn (không bắt buộc)<input type="text" name="name" placeholder="Nguyễn Văn A"></label>
+            <label>Lớp, trường<input type="text" name="school" placeholder="12A1, THPT ..."></label>
+          </div>
+          <label>Nội dung<textarea name="msg" placeholder="Bạn thích hoặc chưa thích điều gì ở website? Có tư liệu nào muốn gửi?" required></textarea></label>
+          <button class="btn btn-son" type="submit" style="justify-self:start">Gửi phản hồi</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="wrap next">
+    <a class="btn btn-line dark" href="#/tram-3">Quay lại Trạm 3</a>
+    <a class="btn btn-son" href="#/">Về trang chủ</a>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <div>
+      <h4>Sóng Chèo</h4>
+      <p style="max-width:40ch">Dự án nghiên cứu khoa học kỹ thuật, phục vụ học tập, không thương mại. Tư liệu sưu tầm được ghi nguồn; nếu bạn là chủ sở hữu và muốn gỡ, hãy liên hệ nhóm.</p>
+    </div>
+    <div>
+      <h4>Các trạm</h4>
+      <ul>
+        <li><a href="#/tram-1">Trạm 1: Hồ sơ KHKT</a></li>
+        <li><a href="#/tram-2">Trạm 2: Bách khoa</a></li>
+        <li><a href="#/tram-3">Trạm 3: Truyền thông</a></li>
+        <li><a href="#/tram-4">Trạm 4: Trải nghiệm</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Liên hệ</h4>
+      <ul>
+        <li>Nhóm nghiên cứu Sóng Chèo</li>
+        <li>[Tên trường]</li>
+        <li><a href="mailto:songcheo@example.com">songcheo@example.com</a></li>
+        <li><a href="#/tram-4" data-goto="khao-sat">Tham gia khảo sát</a></li>
+      </ul>
+    </div>
+    <div class="copy"><span>© 2025 Sóng Chèo. Bản demo giao diện.</span><span>Giữ hồn cốt quê hương qua không gian số.</span></div>
+  </div>
+</footer>
+
+<div class="modal" id="video-modal" role="dialog" aria-modal="true" aria-labelledby="vm-title">
+  <div class="box">
+    <div class="bar"><span id="vm-title">Video</span><button class="x" id="vm-close" aria-label="Đóng"><svg class="ico" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div class="frame" id="vm-frame"></div>
+  </div>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function(){
+  'use strict';
+  var $=function(s,c){return (c||document).querySelector(s)};
+  var $$=function(s,c){return Array.prototype.slice.call((c||document).querySelectorAll(s))};
+  var reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* ---------- Thông báo ---------- */
+  var toastEl=$('#toast'),toastT;
+  function toast(msg){toastEl.textContent=msg;toastEl.classList.add('show');clearTimeout(toastT);toastT=setTimeout(function(){toastEl.classList.remove('show')},2800)}
+
+  /* ---------- Điều hướng theo hash: #/tram-2 ---------- */
+  var pages=$$('.page'),navLinks=$$('.nav a'),nav=$('#nav'),burger=$('#burger');
+  var pendingAnchor=null;
+  function route(){
+    var h=location.hash.replace(/^#\/?/,'')||'home';
+    var found=false;
+    pages.forEach(function(p){var on=p.dataset.page===h;p.classList.toggle('active',on);if(on)found=true});
+    if(!found){pages.forEach(function(p){p.classList.toggle('active',p.dataset.page==='home')});h='home'}
+    navLinks.forEach(function(a){if(a.dataset.route===h)a.setAttribute('aria-current','page');else a.removeAttribute('aria-current')});
+    nav.classList.remove('open');burger.setAttribute('aria-expanded','false');
+    if(pendingAnchor){var el=document.getElementById(pendingAnchor);pendingAnchor=null;if(el){setTimeout(function(){el.scrollIntoView({behavior:reduce?'auto':'smooth',block:'start'})},60);return}}
+    window.scrollTo({top:0,behavior:'auto'});
+    revealScan();
+    if(h==='home')openFan();
+  }
+  window.addEventListener('hashchange',route);
+  document.addEventListener('click',function(e){
+    var a=e.target.closest('[data-goto]');if(a)pendingAnchor=a.dataset.goto;
+  });
+  burger.addEventListener('click',function(){var open=nav.classList.toggle('open');burger.setAttribute('aria-expanded',String(open))});
+
+  /* ---------- Quạt mở ra khi vào trang chủ ---------- */
+  var fan=$('#fan');
+  function openFan(){if(!fan)return;fan.classList.add('closed');if(reduce){fan.classList.remove('closed');return}requestAnimationFrame(function(){setTimeout(function(){fan.classList.remove('closed')},250)})}
+
+  /* ---------- Hiện dần khi cuộn ---------- */
+  var io=('IntersectionObserver' in window)&&!reduce?new IntersectionObserver(function(es){es.forEach(function(en){if(en.isIntersecting){en.target.classList.add('in');io.unobserve(en.target)}})},{rootMargin:'0px 0px -8% 0px',threshold:.08}):null;
+  function revealScan(){
+    var act=$('.page.active');if(!act)return;
+    $$('.rv',act).forEach(function(el){
+      if(!io){el.classList.add('in');return}
+      if(el.classList.contains('in'))return;
+      var r=el.getBoundingClientRect();
+      if(r.top<window.innerHeight*.9){el.classList.add('in')}else io.observe(el);
+    });
+  }
+  /* gắn .rv cho các khối lớn, trừ hero */
+  $$('.page .sec, .page .rail, .page .how, .stop, .fact, .step, .play, .role, .vid, .method li, .chieng li, .survey .card').forEach(function(el){el.classList.add('rv')});
+
+  /* ---------- Chip nhảy mục trong Bách khoa ---------- */
+  $$('.chips button').forEach(function(b){b.addEventListener('click',function(){
+    $$('.chips button').forEach(function(x){x.classList.remove('on')});b.classList.add('on');
+    var el=document.getElementById(b.dataset.jump);if(el)el.scrollIntoView({behavior:reduce?'auto':'smooth',block:'start'});
+  })});
+
+  /* ---------- Modal video ---------- */
+  var vm=$('#video-modal'),vmTitle=$('#vm-title'),vmFrame=$('#vm-frame');
+  function closeVm(){vm.classList.remove('open');vmFrame.innerHTML='';document.body.style.overflow=''}
+  $$('.vid').forEach(function(b){b.addEventListener('click',function(){
+    vmTitle.textContent=b.dataset.title||'Video';
+    var id=(b.dataset.yt||'').trim();
+    if(id){vmFrame.innerHTML='<iframe src="https://www.youtube-nocookie.com/embed/'+encodeURIComponent(id)+'?autoplay=1&rel=0" title="'+vmTitle.textContent+'" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>'}
+    else{vmFrame.innerHTML='<div><p style="font-family:var(--display);font-size:26px;color:var(--vang);margin-bottom:8px">'+vmTitle.textContent+'</p><p>Bản demo chưa gắn link. Khi có video sưu tầm, dán mã YouTube vào thuộc tính <code>data-yt</code> của thẻ này là phát được ngay trong trang.</p></div>'}
+    vm.classList.add('open');document.body.style.overflow='hidden';$('#vm-close').focus();
+  })});
+  $('#vm-close').addEventListener('click',closeVm);
+  vm.addEventListener('click',function(e){if(e.target===vm)closeVm()});
+  document.addEventListener('keydown',function(e){if(e.key==='Escape'&&vm.classList.contains('open'))closeVm()});
+
+  /* ---------- Link chưa có ---------- */
+  $$('[data-soon]').forEach(function(a){a.addEventListener('click',function(e){e.preventDefault();toast('Kênh này sẽ gắn link khi hoạt động.')})});
+  $$('[data-survey]').forEach(function(a){a.addEventListener('click',function(e){if(a.getAttribute('href')==='#'){e.preventDefault();toast('Gắn link Google Form vào nút này là xong.')}})});
+
+  /* ---------- Form phản hồi (demo) ---------- */
+  var fb=$('#fb-form');
+  fb.addEventListener('submit',function(e){
+    e.preventDefault();
+    var msg=fb.msg.value.trim();
+    if(!msg){fb.msg.focus();toast('Bạn chưa viết nội dung phản hồi.');return}
+    toast('Đã gửi phản hồi. Cảm ơn bạn đã góp ý cho Sóng Chèo.');fb.reset();
+  });
+
+  /* ---------- Quiz ---------- */
+  var QUESTIONS=[
+    {q:'Nghệ thuật Chèo ra đời ở vùng nào?',o:['Đồng bằng sông Hồng','Tây Nguyên','Nam Bộ','Tây Bắc'],a:0,e:'Chèo hình thành ở đồng bằng Bắc Bộ, gắn với sân đình và hội làng.'},
+    {q:'Ai được tôn là bà tổ nghề chèo?',o:['Ỷ Lan','Phạm Thị Trân','Bà Triệu','Nguyễn Thị Duệ'],a:1,e:'Tương truyền bà Phạm Thị Trân dạy múa hát trong quân đội thời Đinh, thế kỷ X.'},
+    {q:'Nhạc cụ nào giữ nhịp và "đế" lời trong chèo?',o:['Đàn tranh','Cồng chiêng','Trống đế','Ghi-ta'],a:2,e:'Trống đế nhỏ, tiếng đanh, vừa giữ nhịp vừa chen tiếng "đế" vào câu hát.'},
+    {q:'Trích đoạn "Xúy Vân giả dại" thuộc vở nào?',o:['Quan Âm Thị Kính','Kim Nham','Trương Viên','Lưu Bình – Dương Lễ'],a:1,e:'Xúy Vân là vợ Kim Nham, giả điên để được bỏ chồng, nổi tiếng với điệu Con gà rừng.'},
+    {q:'Thị Mầu thuộc mô hình nhân vật nào?',o:['Đào thương','Mụ','Hề','Đào lệch'],a:3,e:'Thị Mầu lẳng lơ, phá cách, là đào lệch tiêu biểu nhất của chèo cổ.'},
+    {q:'Sân khấu chèo truyền thống thường ở đâu?',o:['Nhà hát có phông màn','Chiếu trải giữa sân đình','Rạp xiếc','Bến sông'],a:1,e:'Gọi là "chiếu chèo sân đình": khán giả ngồi ba mặt, dàn nhạc ở mép chiếu.'},
+    {q:'"Tứ chiếng chèo" gồm những vùng nào?',o:['Xuân, Hạ, Thu, Đông','Đông, Đoài, Nam, Bắc','Kinh, Trấn, Phủ, Huyện','Thượng, Trung, Hạ, Hải'],a:1,e:'Bốn chiếng Đông, Đoài, Nam, Bắc quanh đồng bằng sông Hồng, mỗi vùng một lối diễn.'},
+    {q:'Đạo cụ múa quen thuộc nhất của đào chèo là gì?',o:['Quạt','Kiếm','Gậy','Khăn piêu'],a:0,e:'Quạt mở, khép, che mặt, chỉ đường. Mỗi cách cầm quạt là một ý.'},
+    {q:'Chèo có khoảng bao nhiêu làn điệu?',o:['Khoảng 20','Đúng 50','Hơn 200','Hơn 2000'],a:2,e:'Hơn 200 làn điệu, chia theo hệ thống Sắp, Sử, Đường trường, Vãn, Hề...'},
+    {q:'Vai hề trong chèo làm gì?',o:['Nhắc lời cho diễn viên','Gây cười và châm biếm','Đánh trống','Dẫn chuyện mở màn'],a:1,e:'Hề chọc cười nhưng cũng là tiếng nói châm biếm thói hư tật xấu, cả quan lẫn dân.'}
+  ];
+  var qi=0,score=0,body=$('#q-body'),cnt=$('#q-count'),sc=$('#q-score'),bar=$('#q-bar');
+  var L=['A','B','C','D'];
+  function esc(s){return s.replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+  function renderQ(){
+    var Q=QUESTIONS[qi];
+    cnt.textContent='Câu '+(qi+1)+' / '+QUESTIONS.length;sc.textContent='Đúng: '+score;
+    bar.style.width=(qi/QUESTIONS.length*100)+'%';
+    var html='<div class="q">'+esc(Q.q)+'</div><div class="opts">';
+    Q.o.forEach(function(o,i){html+='<button class="opt" data-i="'+i+'"><i>'+L[i]+'</i><span>'+esc(o)+'</span></button>'});
+    html+='</div><div class="expl" id="q-expl"></div><div class="foot"><button class="btn btn-son" id="q-next" hidden>'+(qi===QUESTIONS.length-1?'Xem kết quả':'Câu tiếp')+'</button></div>';
+    body.innerHTML=html;
+    $$('.opt',body).forEach(function(b){b.addEventListener('click',function(){answer(+b.dataset.i)})});
+    $('#q-next').addEventListener('click',function(){qi++;if(qi<QUESTIONS.length)renderQ();else renderResult()});
+  }
+  function answer(i){
+    var Q=QUESTIONS[qi];
+    $$('.opt',body).forEach(function(b){b.disabled=true;var k=+b.dataset.i;if(k===Q.a)b.classList.add('ok');else if(k===i)b.classList.add('no')});
+    if(i===Q.a)score++;
+    sc.textContent='Đúng: '+score;
+    var ex=$('#q-expl');ex.textContent=(i===Q.a?'Chính xác. ':'Chưa đúng. ')+Q.e;ex.classList.add('show');
+    var n=$('#q-next');n.hidden=false;n.focus();
+  }
+  function renderResult(){
+    bar.style.width='100%';cnt.textContent='Hoàn thành';
+    var t,m;
+    if(score>=9){t='Bạn là người của chiếu chèo';m='Gần như không sót câu nào. Nhóm rất muốn nghe ý kiến của bạn trong phiếu khảo sát.'}
+    else if(score>=6){t='Đã nắm được cái nền';m='Bạn phân biệt được các mô hình nhân vật và nhạc cụ chính. Ghé lại Trạm 2 phần làn điệu để tròn điểm.'}
+    else if(score>=3){t='Mới làm quen';m='Không sao, phần lớn người trẻ cũng bắt đầu từ đây. Xem thử hai video ở Trạm 3 rồi làm lại.'}
+    else{t='Bắt đầu từ Trạm 1 nhé';m='Đây đúng là nhóm người mà đề tài muốn tiếp cận. Đi qua ba trạm trước, rồi quay lại thử lần nữa.'}
+    body.innerHTML='<div class="result"><div class="score">'+score+'<small>/'+QUESTIONS.length+'</small></div><h3>'+t+'</h3><p>'+m+'</p><div class="acts"><button class="btn btn-line dark" id="q-again">Làm lại</button><a class="btn btn-son" href="#khao-sat" id="q-survey">Đi tới khảo sát</a></div></div>';
+    $('#q-again').addEventListener('click',function(){qi=0;score=0;renderQ()});
+    $('#q-survey').addEventListener('click',function(e){e.preventDefault();document.getElementById('khao-sat').scrollIntoView({behavior:reduce?'auto':'smooth'})});
+  }
+  renderQ();
+
+  route();
+})();
+</script>
+</body>
+</html>
