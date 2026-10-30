@@ -247,7 +247,7 @@ ul,ol{margin:0;padding:0;list-style:none}
 .vid .meta span{display:block;font-size:13px;color:var(--muc-nhat);margin-top:4px}
 @media (max-width:860px){.vids{grid-template-columns:1fr 1fr}}
 @media (max-width:520px){.vids{grid-template-columns:1fr}}
-.gal{display:grid;grid-template-columns:repeat(4,1fr);grid-auto-rows:150px;gap:12px}
+.gal{display:grid;grid-template-columns:repeat(4,1fr);grid-auto-rows:170px;gap:12px;grid-auto-flow:dense}
 .gal figure{margin:0;border-radius:12px;overflow:hidden;position:relative;background:var(--son)}
 .gal figure.tall{grid-row:span 2}
 .gal figure.wide{grid-column:span 2}
@@ -363,6 +363,27 @@ body::after{content:"";position:fixed;inset:0;z-index:30;pointer-events:none;opa
 @media (max-width:600px){.brand small{display:none}.brand b{font-size:22px}.brand svg{width:34px;height:34px}}
 @media (max-width:860px){.fan-wrap{max-width:240px}.hero .lead{font-size:15px}.hero-foot .wrap{gap:8px 20px}}
 @media (max-width:480px){.band .num{font-size:72px}.sec h2{font-size:28px}.next{justify-content:stretch}.next .btn{flex:1;justify-content:center}.hero .acts .btn{flex:1;justify-content:center}}
+
+/* Ảnh thật: hero, băng trạm, thẻ trạm, thumbnail video, thư viện */
+.hero .photo{position:absolute;inset:0;background-size:cover;background-position:center 30%;opacity:.28;mix-blend-mode:luminosity;filter:contrast(1.1) sepia(.35)}
+.hero .veil{position:absolute;inset:0;background:linear-gradient(90deg,rgba(43,7,14,.92) 0%,rgba(91,14,28,.7) 45%,rgba(43,7,14,.35) 100%)}
+.band{position:relative;overflow:hidden}
+.band .photo{position:absolute;inset:0;background-size:cover;background-position:center;opacity:.55}
+.band .veil{position:absolute;inset:0;background:linear-gradient(90deg,rgba(43,7,14,.96) 0%,rgba(43,7,14,.85) 40%,rgba(43,7,14,.35) 100%)}
+.band .wrap{position:relative}
+.stop{padding-top:0;overflow:hidden}
+.stop .img{aspect-ratio:16/10;background-size:cover;background-position:center;margin:0 -20px 0;border-bottom:1px solid rgba(91,14,28,.12);filter:saturate(.9)}
+.stop .dot{margin-top:-30px;position:relative}
+.vid .thumb{background-size:cover;background-position:center}
+.vid .thumb::before{background-image:none;background:linear-gradient(0deg,rgba(43,7,14,.55),rgba(43,7,14,.1))}
+.gal figure img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform 1.2s var(--ease)}
+.gal figure:hover img{transform:scale(1.04)}
+.credit{font-size:12px;color:var(--muc-nhat);margin-top:14px;max-width:70ch}
+.credit a{text-decoration:underline;text-underline-offset:2px}
+.tu-chieng-photo{position:relative;border-radius:var(--r);overflow:hidden;aspect-ratio:21/9;margin-bottom:22px;background:var(--son)}
+.tu-chieng-photo img{width:100%;height:100%;object-fit:cover;display:block;opacity:.9}
+.tu-chieng-photo figcaption{position:absolute;left:0;right:0;bottom:0;padding:14px 18px;color:var(--nga);font-size:13px;background:linear-gradient(0deg,rgba(43,7,14,.85),transparent)}
+@media (max-width:860px){.hero .veil{background:linear-gradient(180deg,rgba(43,7,14,.9),rgba(91,14,28,.85))}}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
 </style>
 </head>
@@ -389,6 +410,7 @@ body::after{content:"";position:fixed;inset:0;z-index:30;pointer-events:none;opa
 <!-- ============ TRANG CHỦ ============ -->
 <section class="page" id="page-home" data-page="home">
   <div class="hero">
+    <div class="photo" style="background-image:url('https://upload.wikimedia.org/wikipedia/commons/thumb/9/91/VoCheoQuanamThiKinh.jpg/1920px-VoCheoQuanamThiKinh.jpg')"></div><div class="veil"></div>
     <div class="wrap">
       <div>
         <span class="tag">Dự án nghiên cứu khoa học kỹ thuật</span>
@@ -440,10 +462,10 @@ body::after{content:"";position:fixed;inset:0;z-index:30;pointer-events:none;opa
     <h2>Bốn trạm của hành trình</h2>
     <p class="sub">Mỗi trạm là một trang riêng. Đi theo thứ tự hoặc vào thẳng trạm bạn quan tâm.</p>
     <div class="stops">
-      <a class="stop" href="#/tram-1"><div class="dot">1</div><h3><span>Trạm 1</span>Hồ sơ KHKT</h3><p>Đề tài, câu hỏi nghiên cứu, phương pháp và tiến độ thực hiện của nhóm.</p><span class="go">Vào trạm <svg class="ico" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
-      <a class="stop" href="#/tram-2"><div class="dot">2</div><h3><span>Trạm 2</span>Bách khoa</h3><p>Lịch sử, tứ chiếng chèo, mô hình nhân vật, làn điệu, vở diễn và thuật ngữ.</p><span class="go">Vào trạm <svg class="ico" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
-      <a class="stop" href="#/tram-3"><div class="dot">3</div><h3><span>Trạm 3</span>Truyền thông</h3><p>Video, hình ảnh, bài viết sưu tầm và các kênh lan tỏa của dự án.</p><span class="go">Vào trạm <svg class="ico" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
-      <a class="stop" href="#/tram-4"><div class="dot">4</div><h3><span>Trạm 4</span>Trải nghiệm</h3><p>Trả lời câu hỏi, xem kết quả, tham gia khảo sát và gửi phản hồi.</p><span class="go">Vào trạm <svg class="ico" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+      <a class="stop" href="#/tram-1"><div class="img" style="background-image:url('https://upload.wikimedia.org/wikipedia/commons/thumb/d/d1/Chu_Quy%E1%BA%BFn_Hall_09-06-2013_E5.jpg/960px-Chu_Quy%E1%BA%BFn_Hall_09-06-2013_E5.jpg')"></div><div class="dot">1</div><h3><span>Trạm 1</span>Hồ sơ KHKT</h3><p>Đề tài, câu hỏi nghiên cứu, phương pháp và tiến độ thực hiện của nhóm.</p><span class="go">Vào trạm <svg class="ico" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+      <a class="stop" href="#/tram-2"><div class="img" style="background-image:url('https://upload.wikimedia.org/wikipedia/commons/thumb/a/a1/%C4%90%C3%ACnh_B%E1%BA%A3ng_communal_house.JPG/960px-%C4%90%C3%ACnh_B%E1%BA%A3ng_communal_house.JPG')"></div><div class="dot">2</div><h3><span>Trạm 2</span>Bách khoa</h3><p>Lịch sử, tứ chiếng chèo, mô hình nhân vật, làn điệu, vở diễn và thuật ngữ.</p><span class="go">Vào trạm <svg class="ico" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+      <a class="stop" href="#/tram-3"><div class="img" style="background-image:url('https://upload.wikimedia.org/wikipedia/commons/0/0a/Tienghatdaingan.jpg')"></div><div class="dot">3</div><h3><span>Trạm 3</span>Truyền thông</h3><p>Video, hình ảnh, bài viết sưu tầm và các kênh lan tỏa của dự án.</p><span class="go">Vào trạm <svg class="ico" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
+      <a class="stop" href="#/tram-4"><div class="img" style="background-image:url('https://upload.wikimedia.org/wikipedia/commons/thumb/b/bb/Tr%E1%BB%91ng_c%C3%A1i_trong_L%E1%BB%85_K%E1%BB%B3_Y%C3%AAn..jpg/960px-Tr%E1%BB%91ng_c%C3%A1i_trong_L%E1%BB%85_K%E1%BB%B3_Y%C3%AAn..jpg')"></div><div class="dot">4</div><h3><span>Trạm 4</span>Trải nghiệm</h3><p>Trả lời câu hỏi, xem kết quả, tham gia khảo sát và gửi phản hồi.</p><span class="go">Vào trạm <svg class="ico" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></a>
     </div>
   </div>
 
@@ -472,7 +494,7 @@ body::after{content:"";position:fixed;inset:0;z-index:30;pointer-events:none;opa
 
 <!-- ============ TRẠM 1 ============ -->
 <section class="page" id="page-tram-1" data-page="tram-1">
-  <div class="band"><div class="wrap">
+  <div class="band"><div class="photo" style="background-image:url('https://upload.wikimedia.org/wikipedia/commons/thumb/a/af/Chu_Quy%E1%BA%BFn_Hall_09-06-2013_E3.jpg/1920px-Chu_Quy%E1%BA%BFn_Hall_09-06-2013_E3.jpg')"></div><div class="veil"></div><div class="wrap">
     <div class="num"><small>Trạm 1</small>01</div>
     <div><h1>Hồ sơ khoa học kỹ thuật</h1><p>Toàn bộ thông tin về đề tài: lý do chọn, câu hỏi nghiên cứu, giả thuyết, phương pháp, tiến độ và sản phẩm dự kiến.</p></div>
   </div></div>
@@ -558,7 +580,7 @@ body::after{content:"";position:fixed;inset:0;z-index:30;pointer-events:none;opa
 
 <!-- ============ TRẠM 2 ============ -->
 <section class="page" id="page-tram-2" data-page="tram-2">
-  <div class="band"><div class="wrap">
+  <div class="band"><div class="photo" style="background-image:url('https://upload.wikimedia.org/wikipedia/commons/thumb/a/a1/%C4%90%C3%ACnh_B%E1%BA%A3ng_communal_house.JPG/1920px-%C4%90%C3%ACnh_B%E1%BA%A3ng_communal_house.JPG')"></div><div class="veil"></div><div class="wrap">
     <div class="num"><small>Trạm 2</small>02</div>
     <div><h1>Bách khoa Chèo</h1><p>Những điều cơ bản để hiểu một đêm chèo: từ đâu mà có, ai diễn, hát điệu gì, diễn vở nào và các từ hay gặp.</p></div>
   </div></div>
@@ -587,6 +609,7 @@ body::after{content:"";position:fixed;inset:0;z-index:30;pointer-events:none;opa
   <div class="sec wrap">
     <h2 id="tu-chieng">Tứ chiếng chèo</h2>
     <p class="sub">Bốn vùng chèo quanh đồng bằng sông Hồng, mỗi vùng một lối hát, lối diễn.</p>
+    <figure class="tu-chieng-photo"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2c/Chu_Quy%E1%BA%BFn_Hall_09-06-2013_E1.jpg/1920px-Chu_Quy%E1%BA%BFn_Hall_09-06-2013_E1.jpg" alt="Đình Chu Quyến, Hà Nội" loading="lazy"><figcaption>Đình làng, nơi phường chèo trải chiếu diễn trong hội làng. Ảnh: đình Chu Quyến, xứ Đoài.</figcaption></figure>
     <ul class="chieng">
       <li data-dir="Đ"><b>Chiếng Đông</b><p>Hải Dương, Hải Phòng. Lối diễn chắc, hát rõ lời, nhiều vai hề sắc sảo.</p></li>
       <li data-dir="Đ"><b>Chiếng Đoài</b><p>Vùng xứ Đoài: Sơn Tây, Hà Tây cũ, Vĩnh Phúc, Phú Thọ. Chèo gắn với lễ hội đình làng.</p></li>
@@ -675,7 +698,7 @@ body::after{content:"";position:fixed;inset:0;z-index:30;pointer-events:none;opa
 
 <!-- ============ TRẠM 3 ============ -->
 <section class="page" id="page-tram-3" data-page="tram-3">
-  <div class="band"><div class="wrap">
+  <div class="band"><div class="photo" style="background-image:url('https://upload.wikimedia.org/wikipedia/commons/0/0a/Tienghatdaingan.jpg')"></div><div class="veil"></div><div class="wrap">
     <div class="num"><small>Trạm 3</small>03</div>
     <div><h1>Truyền thông</h1><p>Tư liệu video, hình ảnh và bài viết nhóm sưu tầm, cùng các kênh mà dự án dùng để lan tỏa Chèo đến người trẻ.</p></div>
   </div></div>
@@ -684,26 +707,28 @@ body::after{content:"";position:fixed;inset:0;z-index:30;pointer-events:none;opa
     <h2>Video sưu tầm</h2>
     <p class="sub">Bấm để xem ngay trong trang. Nguồn ghi dưới mỗi video.</p>
     <div class="vids">
-      <button class="vid" data-yt="" data-title="Xúy Vân giả dại"><div class="thumb a"><span class="play-ico"><svg class="ico" viewBox="0 0 24 24"><path d="M7 4v16l13-8z"/></svg></span><span class="dur">06:12</span></div><div class="meta"><b>Trích đoạn "Xúy Vân giả dại"</b><span>Vở Kim Nham · Nguồn: [kênh sưu tầm]</span></div></button>
-      <button class="vid" data-yt="" data-title="Thị Mầu lên chùa"><div class="thumb b"><span class="play-ico"><svg class="ico" viewBox="0 0 24 24"><path d="M7 4v16l13-8z"/></svg></span><span class="dur">08:40</span></div><div class="meta"><b>Trích đoạn "Thị Mầu lên chùa"</b><span>Vở Quan Âm Thị Kính · Nguồn: [kênh sưu tầm]</span></div></button>
-      <button class="vid" data-yt="" data-title="Làn điệu Lới lơ"><div class="thumb c"><span class="play-ico"><svg class="ico" viewBox="0 0 24 24"><path d="M7 4v16l13-8z"/></svg></span><span class="dur">03:25</span></div><div class="meta"><b>Làn điệu Lới lơ</b><span>Hát mẫu có lời · Nguồn: [kênh sưu tầm]</span></div></button>
-      <button class="vid" data-yt="" data-title="Dàn nhạc chèo"><div class="thumb b"><span class="play-ico"><svg class="ico" viewBox="0 0 24 24"><path d="M7 4v16l13-8z"/></svg></span><span class="dur">04:58</span></div><div class="meta"><b>Dàn nhạc chèo và tiếng trống đế</b><span>Phóng sự · Nguồn: [kênh sưu tầm]</span></div></button>
-      <button class="vid" data-yt="" data-title="Phỏng vấn nghệ sĩ"><div class="thumb c"><span class="play-ico"><svg class="ico" viewBox="0 0 24 24"><path d="M7 4v16l13-8z"/></svg></span><span class="dur">12:03</span></div><div class="meta"><b>Phỏng vấn nghệ sĩ chèo về khán giả trẻ</b><span>Nhóm thực hiện · 11/2025</span></div></button>
-      <button class="vid" data-yt="" data-title="Chèo làng Khuốc"><div class="thumb a"><span class="play-ico"><svg class="ico" viewBox="0 0 24 24"><path d="M7 4v16l13-8z"/></svg></span><span class="dur">09:17</span></div><div class="meta"><b>Chiếu chèo làng Khuốc, Thái Bình</b><span>Tư liệu · Nguồn: [kênh sưu tầm]</span></div></button>
+      <button class="vid" data-yt="" data-title="Xúy Vân giả dại"><div class="thumb a" style="background-image:url('https://upload.wikimedia.org/wikipedia/commons/thumb/9/91/VoCheoQuanamThiKinh.jpg/960px-VoCheoQuanamThiKinh.jpg')"><span class="play-ico"><svg class="ico" viewBox="0 0 24 24"><path d="M7 4v16l13-8z"/></svg></span><span class="dur">06:12</span></div><div class="meta"><b>Trích đoạn "Xúy Vân giả dại"</b><span>Vở Kim Nham · Nguồn: [kênh sưu tầm]</span></div></button>
+      <button class="vid" data-yt="" data-title="Thị Mầu lên chùa"><div class="thumb b" style="background-image:url('https://upload.wikimedia.org/wikipedia/commons/0/0a/Tienghatdaingan.jpg')"><span class="play-ico"><svg class="ico" viewBox="0 0 24 24"><path d="M7 4v16l13-8z"/></svg></span><span class="dur">08:40</span></div><div class="meta"><b>Trích đoạn "Thị Mầu lên chùa"</b><span>Vở Quan Âm Thị Kính · Nguồn: [kênh sưu tầm]</span></div></button>
+      <button class="vid" data-yt="" data-title="Làn điệu Lới lơ"><div class="thumb c" style="background-image:url('https://upload.wikimedia.org/wikipedia/commons/thumb/2/2b/Two-String_Fiddle_-_%C3%90%C3%A0n_Nhi.jpg/960px-Two-String_Fiddle_-_%C3%90%C3%A0n_Nhi.jpg')"><span class="play-ico"><svg class="ico" viewBox="0 0 24 24"><path d="M7 4v16l13-8z"/></svg></span><span class="dur">03:25</span></div><div class="meta"><b>Làn điệu Lới lơ</b><span>Hát mẫu có lời · Nguồn: [kênh sưu tầm]</span></div></button>
+      <button class="vid" data-yt="" data-title="Dàn nhạc chèo"><div class="thumb b" style="background-image:url('https://upload.wikimedia.org/wikipedia/commons/thumb/b/bb/Tr%E1%BB%91ng_c%C3%A1i_trong_L%E1%BB%85_K%E1%BB%B3_Y%C3%AAn..jpg/960px-Tr%E1%BB%91ng_c%C3%A1i_trong_L%E1%BB%85_K%E1%BB%B3_Y%C3%AAn..jpg')"><span class="play-ico"><svg class="ico" viewBox="0 0 24 24"><path d="M7 4v16l13-8z"/></svg></span><span class="dur">04:58</span></div><div class="meta"><b>Dàn nhạc chèo và tiếng trống đế</b><span>Phóng sự · Nguồn: [kênh sưu tầm]</span></div></button>
+      <button class="vid" data-yt="" data-title="Phỏng vấn nghệ sĩ"><div class="thumb c" style="background-image:url('https://upload.wikimedia.org/wikipedia/commons/thumb/d/d1/Chu_Quy%E1%BA%BFn_Hall_09-06-2013_E5.jpg/960px-Chu_Quy%E1%BA%BFn_Hall_09-06-2013_E5.jpg')"><span class="play-ico"><svg class="ico" viewBox="0 0 24 24"><path d="M7 4v16l13-8z"/></svg></span><span class="dur">12:03</span></div><div class="meta"><b>Phỏng vấn nghệ sĩ chèo về khán giả trẻ</b><span>Nhóm thực hiện · 11/2025</span></div></button>
+      <button class="vid" data-yt="" data-title="Chèo làng Khuốc"><div class="thumb a" style="background-image:url('https://upload.wikimedia.org/wikipedia/commons/thumb/c/c9/Trong_s%C3%A2n_%C4%91%C3%ACnh_l%C3%A0ng_Qu%E1%BA%A3ng_B%E1%BB%91%2C_th%C3%B4n_Qu%E1%BA%A3ng_B%E1%BB%91%2C_x%C3%A3_Qu%E1%BA%A3ng_Ph%C3%BA%2C_huy%E1%BB%87n_L%C6%B0%C6%A1ng_T%C3%A0i%2C_t%E1%BB%89nh_B%E1%BA%AFc_Ninh.jpg/960px-Trong_s%C3%A2n_%C4%91%C3%ACnh_l%C3%A0ng_Qu%E1%BA%A3ng_B%E1%BB%91%2C_th%C3%B4n_Qu%E1%BA%A3ng_B%E1%BB%91%2C_x%C3%A3_Qu%E1%BA%A3ng_Ph%C3%BA%2C_huy%E1%BB%87n_L%C6%B0%C6%A1ng_T%C3%A0i%2C_t%E1%BB%89nh_B%E1%BA%AFc_Ninh.jpg')"><span class="play-ico"><svg class="ico" viewBox="0 0 24 24"><path d="M7 4v16l13-8z"/></svg></span><span class="dur">09:17</span></div><div class="meta"><b>Chiếu chèo làng Khuốc, Thái Bình</b><span>Tư liệu · Nguồn: [kênh sưu tầm]</span></div></button>
     </div>
   </div>
 
   <div class="sec wrap">
     <h2>Hình ảnh</h2>
-    <p class="sub">Ảnh do nhóm sưu tầm và chụp trong quá trình thực hiện. Bản demo dùng hình minh họa, ảnh thật sẽ thay vào đúng vị trí.</p>
+    <p class="sub">Ảnh do nhóm sưu tầm và chụp trong quá trình thực hiện. Bản demo dùng ảnh tư liệu mở từ Wikimedia Commons, ảnh của nhóm sẽ thay vào đúng vị trí.</p>
     <div class="gal">
-      <figure class="tall"><svg viewBox="0 0 200 300" preserveAspectRatio="xMidYMid slice"><rect width="200" height="300" fill="#5B0E1C"/><g stroke="#D5A449" stroke-width="1.2" fill="none"><path d="M100 230 L30 120 A100 100 0 0 1 170 120 Z"/><path d="M100 230 L50 100M100 230 L75 86M100 230 L100 80M100 230 L125 86M100 230 L150 100"/></g></svg><figcaption>Quạt chèo, đạo cụ của đào</figcaption></figure>
-      <figure><svg viewBox="0 0 200 150" preserveAspectRatio="xMidYMid slice"><rect width="200" height="150" fill="#7A1727"/><g stroke="#F0DCA8" stroke-width="1.2" fill="none"><ellipse cx="100" cy="80" rx="46" ry="30"/><ellipse cx="100" cy="68" rx="46" ry="30"/><path d="M54 68v12M146 68v12"/></g></svg><figcaption>Trống đế</figcaption></figure>
-      <figure><svg viewBox="0 0 200 150" preserveAspectRatio="xMidYMid slice"><rect width="200" height="150" fill="#B7862F"/><g stroke="#2B070E" stroke-width="1.2" fill="none"><path d="M40 110h120M40 100h120M40 90h120M40 80h120"/><rect x="30" y="70" width="140" height="50"/></g></svg><figcaption>Chiếu chèo sân đình</figcaption></figure>
-      <figure class="wide"><svg viewBox="0 0 400 150" preserveAspectRatio="xMidYMid slice"><rect width="400" height="150" fill="#2B070E"/><g stroke="#D5A449" stroke-width="1.2" fill="none"><path d="M40 120 L200 30 L360 120"/><path d="M80 120 L200 55 L320 120"/><path d="M0 120h400"/></g></svg><figcaption>Mái đình làng, nơi diễn chèo hội</figcaption></figure>
-      <figure><svg viewBox="0 0 200 150" preserveAspectRatio="xMidYMid slice"><rect width="200" height="150" fill="#5B0E1C"/><g stroke="#F0DCA8" stroke-width="1.2" fill="none"><ellipse cx="100" cy="78" rx="34" ry="42"/><path d="M78 70h14M108 70h14M86 95q14 10 28 0"/></g></svg><figcaption>Hóa trang vai hề</figcaption></figure>
-      <figure><svg viewBox="0 0 200 150" preserveAspectRatio="xMidYMid slice"><rect width="200" height="150" fill="#7A1727"/><g stroke="#D5A449" stroke-width="1.2" fill="none"><path d="M60 120 L60 40 M60 40 q20-10 40 0 q20 10 40 0"/><circle cx="60" cy="120" r="14"/></g></svg><figcaption>Cây nhị</figcaption></figure>
-      <figure><svg viewBox="0 0 200 150" preserveAspectRatio="xMidYMid slice"><rect width="200" height="150" fill="#B7862F"/><g stroke="#2B070E" stroke-width="1.2" fill="none"><rect x="60" y="30" width="80" height="100" rx="6"/><path d="M70 50h60M70 65h60M70 80h40"/></g></svg><figcaption>Phiếu khảo sát tại trường</figcaption></figure>
+      <figure class="tall"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/91/VoCheoQuanamThiKinh.jpg/960px-VoCheoQuanamThiKinh.jpg" alt="Sân khấu chèo "Quan Âm Thị Kính", ảnh tư liệu" loading="lazy"><figcaption>Sân khấu chèo "Quan Âm Thị Kính", ảnh tư liệu</figcaption></figure>
+      <figure class=""><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/bb/Tr%E1%BB%91ng_c%C3%A1i_trong_L%E1%BB%85_K%E1%BB%B3_Y%C3%AAn..jpg/500px-Tr%E1%BB%91ng_c%C3%A1i_trong_L%E1%BB%85_K%E1%BB%B3_Y%C3%AAn..jpg" alt="Trống cái trong lễ hội đình làng" loading="lazy"><figcaption>Trống cái trong lễ hội đình làng</figcaption></figure>
+      <figure class=""><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/0c/Chu_Quy%E1%BA%BFn_Hall_09-06-2013_E4.jpg/500px-Chu_Quy%E1%BA%BFn_Hall_09-06-2013_E4.jpg" alt="Chạm khắc gỗ đình Chu Quyến" loading="lazy"><figcaption>Chạm khắc gỗ đình Chu Quyến</figcaption></figure>
+      <figure class=""><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/2b/Two-String_Fiddle_-_%C3%90%C3%A0n_Nhi.jpg/500px-Two-String_Fiddle_-_%C3%90%C3%A0n_Nhi.jpg" alt="Nghệ sĩ kéo đàn nhị" loading="lazy"><figcaption>Nghệ sĩ kéo đàn nhị</figcaption></figure>
+      <figure class="wide"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/a/ab/%C4%90%C3%ACnh_T%C3%A2y_%C4%90%E1%BA%B1ng_1.jpg/960px-%C4%90%C3%ACnh_T%C3%A2y_%C4%90%E1%BA%B1ng_1.jpg" alt="Ao sen trước đình Tây Đằng" loading="lazy"><figcaption>Ao sen trước đình Tây Đằng</figcaption></figure>
+      <figure class=""><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f0/A_game_of_human_pyramid%2C_Tay_Dang_Communale_house%2C_Ha_Tay_province%2C_17th_century%2C_wood_-_Vietnam_National_Museum_of_Fine_Arts_-_Hanoi%2C_Vietnam_-_DSC04927.JPG/500px-A_game_of_human_pyramid%2C_Tay_Dang_Communale_house%2C_Ha_Tay_province%2C_17th_century%2C_wood_-_Vietnam_National_Museum_of_Fine_Arts_-_Hanoi%2C_Vietnam_-_DSC04927.JPG" alt="Chạm khắc "chồng người" ở đình Tây Đằng" loading="lazy"><figcaption>Chạm khắc "chồng người" ở đình Tây Đằng</figcaption></figure>
+      <figure class="wide"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/4d/Hinh_cham_khac.jpg/960px-Hinh_cham_khac.jpg" alt="Hoa văn chạm trên đình Bảng" loading="lazy"><figcaption>Hoa văn chạm trên đình Bảng</figcaption></figure>
+      <figure class=""><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c9/Trong_s%C3%A2n_%C4%91%C3%ACnh_l%C3%A0ng_Qu%E1%BA%A3ng_B%E1%BB%91%2C_th%C3%B4n_Qu%E1%BA%A3ng_B%E1%BB%91%2C_x%C3%A3_Qu%E1%BA%A3ng_Ph%C3%BA%2C_huy%E1%BB%87n_L%C6%B0%C6%A1ng_T%C3%A0i%2C_t%E1%BB%89nh_B%E1%BA%AFc_Ninh.jpg/500px-Trong_s%C3%A2n_%C4%91%C3%ACnh_l%C3%A0ng_Qu%E1%BA%A3ng_B%E1%BB%91%2C_th%C3%B4n_Qu%E1%BA%A3ng_B%E1%BB%91%2C_x%C3%A3_Qu%E1%BA%A3ng_Ph%C3%BA%2C_huy%E1%BB%87n_L%C6%B0%C6%A1ng_T%C3%A0i%2C_t%E1%BB%89nh_B%E1%BA%AFc_Ninh.jpg" alt="Sân đình làng Quảng Bố, Bắc Ninh" loading="lazy"><figcaption>Sân đình làng Quảng Bố, Bắc Ninh</figcaption></figure>
+      <figure class=""><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d1/Chu_Quy%E1%BA%BFn_Hall_09-06-2013_E5.jpg/500px-Chu_Quy%E1%BA%BFn_Hall_09-06-2013_E5.jpg" alt="Hàng cột gỗ trong đình Chu Quyến" loading="lazy"><figcaption>Hàng cột gỗ trong đình Chu Quyến</figcaption></figure>
     </div>
   </div>
 
@@ -742,7 +767,7 @@ body::after{content:"";position:fixed;inset:0;z-index:30;pointer-events:none;opa
 
 <!-- ============ TRẠM 4 ============ -->
 <section class="page" id="page-tram-4" data-page="tram-4">
-  <div class="band"><div class="wrap">
+  <div class="band"><div class="photo" style="background-image:url('https://upload.wikimedia.org/wikipedia/commons/thumb/f/f0/A_game_of_human_pyramid%2C_Tay_Dang_Communale_house%2C_Ha_Tay_province%2C_17th_century%2C_wood_-_Vietnam_National_Museum_of_Fine_Arts_-_Hanoi%2C_Vietnam_-_DSC04927.JPG/1920px-A_game_of_human_pyramid%2C_Tay_Dang_Communale_house%2C_Ha_Tay_province%2C_17th_century%2C_wood_-_Vietnam_National_Museum_of_Fine_Arts_-_Hanoi%2C_Vietnam_-_DSC04927.JPG')"></div><div class="veil"></div><div class="wrap">
     <div class="num"><small>Trạm 4</small>04</div>
     <div><h1>Trải nghiệm</h1><p>Thử xem bạn nhớ được bao nhiêu sau ba trạm. Rồi dành hai phút cho phiếu khảo sát, đó là dữ liệu chính của đề tài.</p></div>
   </div></div>
@@ -813,7 +838,7 @@ body::after{content:"";position:fixed;inset:0;z-index:30;pointer-events:none;opa
         <li><a href="#/tram-4" data-goto="khao-sat">Tham gia khảo sát</a></li>
       </ul>
     </div>
-    <div class="copy"><span>© 2025 Sóng Chèo. Bản demo giao diện.</span><span>Giữ hồn cốt quê hương qua không gian số.</span></div>
+    <div class="copy"><span>© 2025 Sóng Chèo. Bản demo giao diện. Ảnh tư liệu từ <a href="https://commons.wikimedia.org/" style="text-decoration:underline">Wikimedia Commons</a>, giấy phép public domain, CC0, CC BY, CC BY-SA.</span><span>Giữ hồn cốt quê hương qua không gian số.</span></div>
   </div>
 </footer>
 
